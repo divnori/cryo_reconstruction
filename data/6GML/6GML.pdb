@@ -1,0 +1,607 @@
+HEADER    TRANSCRIPTION                           27-MAY-18   6GML              
+TITLE     STRUCTURE OF PAUSED TRANSCRIPTION COMPLEX POL II-DSIF-NELF            
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: DNA-DIRECTED RNA POLYMERASE SUBUNIT;                       
+COMPND   3 CHAIN: A;                                                            
+COMPND   4 EC: 2.7.7.6;                                                         
+COMPND   5 MOL_ID: 2;                                                           
+COMPND   6 MOLECULE: DNA-DIRECTED RNA POLYMERASE SUBUNIT BETA;                  
+COMPND   7 CHAIN: B;                                                            
+COMPND   8 EC: 2.7.7.6;                                                         
+COMPND   9 MOL_ID: 3;                                                           
+COMPND  10 MOLECULE: RNA POLYMERASE II SUBUNIT C;                               
+COMPND  11 CHAIN: C;                                                            
+COMPND  12 MOL_ID: 4;                                                           
+COMPND  13 MOLECULE: RNA POLYMERASE II SUBUNIT E;                               
+COMPND  14 CHAIN: E;                                                            
+COMPND  15 MOL_ID: 5;                                                           
+COMPND  16 MOLECULE: RNA POLYMERASE II SUBUNIT F;                               
+COMPND  17 CHAIN: F;                                                            
+COMPND  18 MOL_ID: 6;                                                           
+COMPND  19 MOLECULE: DNA-DIRECTED RNA POLYMERASES I, II, AND III SUBUNIT RPABC3;
+COMPND  20 CHAIN: H;                                                            
+COMPND  21 MOL_ID: 7;                                                           
+COMPND  22 MOLECULE: DNA-DIRECTED RNA POLYMERASE II SUBUNIT RPB9;               
+COMPND  23 CHAIN: I;                                                            
+COMPND  24 SYNONYM: RNA POLYMERASE II SUBUNIT B9,DNA-DIRECTED RNA POLYMERASE II 
+COMPND  25 SUBUNIT I,RNA POLYMERASE II 14.5 KDA SUBUNIT,RPB14.5;                
+COMPND  26 MOL_ID: 8;                                                           
+COMPND  27 MOLECULE: UNCHARACTERIZED PROTEIN;                                   
+COMPND  28 CHAIN: J;                                                            
+COMPND  29 MOL_ID: 9;                                                           
+COMPND  30 MOLECULE: UNCHARACTERIZED PROTEIN;                                   
+COMPND  31 CHAIN: K;                                                            
+COMPND  32 MOL_ID: 10;                                                          
+COMPND  33 MOLECULE: UNCHARACTERIZED PROTEIN;                                   
+COMPND  34 CHAIN: L;                                                            
+COMPND  35 MOL_ID: 11;                                                          
+COMPND  36 MOLECULE: NON-TEMPLATE DNA;                                          
+COMPND  37 CHAIN: N;                                                            
+COMPND  38 ENGINEERED: YES;                                                     
+COMPND  39 MUTATION: YES;                                                       
+COMPND  40 MOL_ID: 12;                                                          
+COMPND  41 MOLECULE: TAR RNA;                                                   
+COMPND  42 CHAIN: P;                                                            
+COMPND  43 ENGINEERED: YES;                                                     
+COMPND  44 MOL_ID: 13;                                                          
+COMPND  45 MOLECULE: TEMPLATE DNA;                                              
+COMPND  46 CHAIN: T;                                                            
+COMPND  47 ENGINEERED: YES;                                                     
+COMPND  48 MUTATION: YES;                                                       
+COMPND  49 MOL_ID: 14;                                                          
+COMPND  50 MOLECULE: NEGATIVE ELONGATION FACTOR A;                              
+COMPND  51 CHAIN: U;                                                            
+COMPND  52 SYNONYM: NELF-A,WOLF-HIRSCHHORN SYNDROME CANDIDATE 2 PROTEIN;        
+COMPND  53 ENGINEERED: YES;                                                     
+COMPND  54 MOL_ID: 15;                                                          
+COMPND  55 MOLECULE: NEGATIVE ELONGATION FACTOR B,NEGATIVE ELONGATION FACTOR B; 
+COMPND  56 CHAIN: V;                                                            
+COMPND  57 SYNONYM: NELF-B,COFACTOR OF BRCA1;                                   
+COMPND  58 ENGINEERED: YES;                                                     
+COMPND  59 MOL_ID: 16;                                                          
+COMPND  60 MOLECULE: NEGATIVE ELONGATION FACTOR C/D;                            
+COMPND  61 CHAIN: W;                                                            
+COMPND  62 SYNONYM: NELF-C/D,TH1-LIKE PROTEIN;                                  
+COMPND  63 ENGINEERED: YES;                                                     
+COMPND  64 MOL_ID: 17;                                                          
+COMPND  65 MOLECULE: NEGATIVE ELONGATION FACTOR E,NEGATIVE ELONGATION FACTOR E; 
+COMPND  66 CHAIN: X;                                                            
+COMPND  67 SYNONYM: NELF-E,RNA-BINDING PROTEIN RD;                              
+COMPND  68 ENGINEERED: YES;                                                     
+COMPND  69 MOL_ID: 18;                                                          
+COMPND  70 MOLECULE: TRANSCRIPTION ELONGATION FACTOR SPT4;                      
+COMPND  71 CHAIN: Y;                                                            
+COMPND  72 SYNONYM: HSPT4,DRB SENSITIVITY-INDUCING FACTOR 14 KDA SUBUNIT,DSIF   
+COMPND  73 P14,DRB SENSITIVITY-INDUCING FACTOR SMALL SUBUNIT,DSIF SMALL SUBUNIT;
+COMPND  74 ENGINEERED: YES;                                                     
+COMPND  75 MOL_ID: 19;                                                          
+COMPND  76 MOLECULE: TRANSCRIPTION ELONGATION FACTOR SPT5;                      
+COMPND  77 CHAIN: Z;                                                            
+COMPND  78 SYNONYM: HSPT5,DRB SENSITIVITY-INDUCING FACTOR 160 KDA SUBUNIT,DSIF  
+COMPND  79 P160,DRB SENSITIVITY-INDUCING FACTOR LARGE SUBUNIT,DSIF LARGE        
+COMPND  80 SUBUNIT,TAT-COTRANSACTIVATOR 1 PROTEIN,TAT-CT1 PROTEIN;              
+COMPND  81 ENGINEERED: YES;                                                     
+COMPND  82 MOL_ID: 20;                                                          
+COMPND  83 MOLECULE: RNA POLYMERASE II SUBUNIT D;                               
+COMPND  84 CHAIN: D;                                                            
+COMPND  85 MOL_ID: 21;                                                          
+COMPND  86 MOLECULE: RNA POLYMERASE II SUBUNIT G;                               
+COMPND  87 CHAIN: G                                                             
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE   3 ORGANISM_COMMON: PIG;                                                
+SOURCE   4 ORGANISM_TAXID: 9823;                                                
+SOURCE   5 ORGAN: THYMUS;                                                       
+SOURCE   6 MOL_ID: 2;                                                           
+SOURCE   7 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE   8 ORGANISM_COMMON: PIG;                                                
+SOURCE   9 ORGANISM_TAXID: 9823;                                                
+SOURCE  10 ORGAN: THYMUS;                                                       
+SOURCE  11 MOL_ID: 3;                                                           
+SOURCE  12 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  13 ORGANISM_COMMON: PIG;                                                
+SOURCE  14 ORGANISM_TAXID: 9823;                                                
+SOURCE  15 ORGAN: THYMUS;                                                       
+SOURCE  16 MOL_ID: 4;                                                           
+SOURCE  17 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  18 ORGANISM_COMMON: PIG;                                                
+SOURCE  19 ORGANISM_TAXID: 9823;                                                
+SOURCE  20 ORGAN: THYMUS;                                                       
+SOURCE  21 MOL_ID: 5;                                                           
+SOURCE  22 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  23 ORGANISM_COMMON: PIG;                                                
+SOURCE  24 ORGANISM_TAXID: 9823;                                                
+SOURCE  25 MOL_ID: 6;                                                           
+SOURCE  26 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  27 ORGANISM_COMMON: PIG;                                                
+SOURCE  28 ORGANISM_TAXID: 9823;                                                
+SOURCE  29 ORGAN: THYMUS;                                                       
+SOURCE  30 MOL_ID: 7;                                                           
+SOURCE  31 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  32 ORGANISM_COMMON: PIG;                                                
+SOURCE  33 ORGANISM_TAXID: 9823;                                                
+SOURCE  34 ORGAN: THYMUS;                                                       
+SOURCE  35 MOL_ID: 8;                                                           
+SOURCE  36 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  37 ORGANISM_COMMON: PIG;                                                
+SOURCE  38 ORGANISM_TAXID: 9823;                                                
+SOURCE  39 ORGAN: THYMUS;                                                       
+SOURCE  40 MOL_ID: 9;                                                           
+SOURCE  41 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  42 ORGANISM_COMMON: PIG;                                                
+SOURCE  43 ORGANISM_TAXID: 9823;                                                
+SOURCE  44 ORGAN: THYMUS;                                                       
+SOURCE  45 MOL_ID: 10;                                                          
+SOURCE  46 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE  47 ORGANISM_COMMON: PIG;                                                
+SOURCE  48 ORGANISM_TAXID: 9823;                                                
+SOURCE  49 ORGAN: THYMUS;                                                       
+SOURCE  50 MOL_ID: 11;                                                          
+SOURCE  51 SYNTHETIC: YES;                                                      
+SOURCE  52 ORGANISM_SCIENTIFIC: HUMAN IMMUNODEFICIENCY VIRUS 1;                 
+SOURCE  53 ORGANISM_TAXID: 11676;                                               
+SOURCE  54 OTHER_DETAILS: MUTATED FROM ORIGINAL SEQUENCE FOR STRUCTURAL WORK;   
+SOURCE  55 MOL_ID: 12;                                                          
+SOURCE  56 SYNTHETIC: YES;                                                      
+SOURCE  57 ORGANISM_SCIENTIFIC: HUMAN IMMUNODEFICIENCY VIRUS 1;                 
+SOURCE  58 ORGANISM_TAXID: 11676;                                               
+SOURCE  59 MOL_ID: 13;                                                          
+SOURCE  60 SYNTHETIC: YES;                                                      
+SOURCE  61 ORGANISM_SCIENTIFIC: HUMAN IMMUNODEFICIENCY VIRUS 1;                 
+SOURCE  62 ORGANISM_TAXID: 11676;                                               
+SOURCE  63 MOL_ID: 14;                                                          
+SOURCE  64 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE  65 ORGANISM_COMMON: HUMAN;                                              
+SOURCE  66 ORGANISM_TAXID: 9606;                                                
+SOURCE  67 GENE: NELFA, WHSC2, P/OKCL.15;                                       
+SOURCE  68 EXPRESSION_SYSTEM: TRICHOPLUSIA NI;                                  
+SOURCE  69 EXPRESSION_SYSTEM_COMMON: CABBAGE LOOPER;                            
+SOURCE  70 EXPRESSION_SYSTEM_TAXID: 7111;                                       
+SOURCE  71 EXPRESSION_SYSTEM_VECTOR_TYPE: 438A;                                 
+SOURCE  72 MOL_ID: 15;                                                          
+SOURCE  73 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE  74 ORGANISM_COMMON: HUMAN;                                              
+SOURCE  75 ORGANISM_TAXID: 9606;                                                
+SOURCE  76 GENE: NELFB, COBRA1, KIAA1182;                                       
+SOURCE  77 EXPRESSION_SYSTEM: TRICHOPLUSIA NI;                                  
+SOURCE  78 EXPRESSION_SYSTEM_COMMON: CABBAGE LOOPER;                            
+SOURCE  79 EXPRESSION_SYSTEM_TAXID: 7111;                                       
+SOURCE  80 EXPRESSION_SYSTEM_VECTOR_TYPE: 438A;                                 
+SOURCE  81 MOL_ID: 16;                                                          
+SOURCE  82 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE  83 ORGANISM_COMMON: HUMAN;                                              
+SOURCE  84 ORGANISM_TAXID: 9606;                                                
+SOURCE  85 GENE: NELFCD, NELFD, TH1, TH1L, HSPC130;                             
+SOURCE  86 EXPRESSION_SYSTEM: TRICHOPLUSIA NI;                                  
+SOURCE  87 EXPRESSION_SYSTEM_COMMON: CABBAGE LOOPER;                            
+SOURCE  88 EXPRESSION_SYSTEM_TAXID: 7111;                                       
+SOURCE  89 EXPRESSION_SYSTEM_VECTOR_TYPE: 438B;                                 
+SOURCE  90 MOL_ID: 17;                                                          
+SOURCE  91 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE  92 ORGANISM_COMMON: HUMAN;                                              
+SOURCE  93 ORGANISM_TAXID: 9606;                                                
+SOURCE  94 GENE: NELFE, RD, RDBP;                                               
+SOURCE  95 EXPRESSION_SYSTEM: TRICHOPLUSIA NI;                                  
+SOURCE  96 EXPRESSION_SYSTEM_COMMON: CABBAGE LOOPER;                            
+SOURCE  97 EXPRESSION_SYSTEM_TAXID: 7111;                                       
+SOURCE  98 EXPRESSION_SYSTEM_VECTOR_TYPE: 438A;                                 
+SOURCE  99 MOL_ID: 18;                                                          
+SOURCE 100 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE 101 ORGANISM_COMMON: HUMAN;                                              
+SOURCE 102 ORGANISM_TAXID: 9606;                                                
+SOURCE 103 GENE: SUPT4H1, SPT4H, SUPT4H;                                        
+SOURCE 104 EXPRESSION_SYSTEM: ESCHERICHIA COLI BL21(DE3);                       
+SOURCE 105 EXPRESSION_SYSTEM_TAXID: 469008;                                     
+SOURCE 106 EXPRESSION_SYSTEM_VARIANT: RIL;                                      
+SOURCE 107 MOL_ID: 19;                                                          
+SOURCE 108 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                                   
+SOURCE 109 ORGANISM_COMMON: HUMAN;                                              
+SOURCE 110 ORGANISM_TAXID: 9606;                                                
+SOURCE 111 GENE: SUPT5H, SPT5, SPT5H;                                           
+SOURCE 112 EXPRESSION_SYSTEM: ESCHERICHIA COLI BL21(DE3);                       
+SOURCE 113 EXPRESSION_SYSTEM_TAXID: 469008;                                     
+SOURCE 114 EXPRESSION_SYSTEM_VARIANT: RIL;                                      
+SOURCE 115 MOL_ID: 20;                                                          
+SOURCE 116 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE 117 ORGANISM_COMMON: PIG;                                                
+SOURCE 118 ORGANISM_TAXID: 9823;                                                
+SOURCE 119 ORGAN: THYMUS;                                                       
+SOURCE 120 MOL_ID: 21;                                                          
+SOURCE 121 ORGANISM_SCIENTIFIC: SUS SCROFA;                                     
+SOURCE 122 ORGANISM_COMMON: PIG;                                                
+SOURCE 123 ORGANISM_TAXID: 9823;                                                
+SOURCE 124 ORGAN: THYMUS                                                        
+KEYWDS    RNA POLYMERASE II, PAUSING, NELF, DSIF, TRANSCRIPTION                 
+EXPDTA    ELECTRON MICROSCOPY                                                   
+AUTHOR    S.M.VOS,L.FARNUNG,H.URLAUB,P.CRAMER                                   
+REVDAT   5   11-DEC-19 6GML    1       CRYST1 SCALE                             
+REVDAT   4   23-JAN-19 6GML    1       COMPND SOURCE REMARK DBREF               
+REVDAT   4 2                   1       SEQADV SEQRES                            
+REVDAT   3   03-OCT-18 6GML    1       REMARK                                   
+REVDAT   2   12-SEP-18 6GML    1       JRNL                                     
+REVDAT   1   05-SEP-18 6GML    0                                                
+JRNL        AUTH   S.M.VOS,L.FARNUNG,H.URLAUB,P.CRAMER                          
+JRNL        TITL   STRUCTURE OF PAUSED TRANSCRIPTION COMPLEX POL II-DSIF-NELF.  
+JRNL        REF    NATURE                        V. 560   601 2018              
+JRNL        REFN                   ESSN 1476-4687                               
+JRNL        PMID   30135580                                                     
+JRNL        DOI    10.1038/S41586-018-0442-2                                    
+REMARK   2                                                                      
+REMARK   2 RESOLUTION.    3.20 ANGSTROMS.                                       
+REMARK   3                                                                      
+REMARK   3 REFINEMENT.                                                          
+REMARK   3   SOFTWARE PACKAGES      : EPU, RELION                               
+REMARK   3   RECONSTRUCTION SCHEMA  : NULL                                      
+REMARK   3                                                                      
+REMARK   3 EM MAP-MODEL FITTING AND REFINEMENT                                  
+REMARK   3   PDB ENTRY                    : NULL                                
+REMARK   3   REFINEMENT SPACE             : NULL                                
+REMARK   3   REFINEMENT PROTOCOL          : NULL                                
+REMARK   3   REFINEMENT TARGET            : NULL                                
+REMARK   3   OVERALL ANISOTROPIC B VALUE  : NULL                                
+REMARK   3                                                                      
+REMARK   3 FITTING PROCEDURE : NULL                                             
+REMARK   3                                                                      
+REMARK   3 EM IMAGE RECONSTRUCTION STATISTICS                                   
+REMARK   3   NOMINAL PIXEL SIZE (ANGSTROMS)    : NULL                           
+REMARK   3   ACTUAL PIXEL SIZE  (ANGSTROMS)    : NULL                           
+REMARK   3   EFFECTIVE RESOLUTION (ANGSTROMS)  : 3.200                          
+REMARK   3   NUMBER OF PARTICLES               : 162269                         
+REMARK   3   CTF CORRECTION METHOD             : PHASE FLIPPING AND AMPLITUDE   
+REMARK   3                                       CORRECTION                     
+REMARK   3                                                                      
+REMARK   3 EM RECONSTRUCTION MAGNIFICATION CALIBRATION: NULL                    
+REMARK   3                                                                      
+REMARK   3 OTHER DETAILS: NULL                                                  
+REMARK   4                                                                      
+REMARK   4 6GML COMPLIES WITH FORMAT V. 3.30, 13-JUL-11                         
+REMARK 100                                                                      
+REMARK 100 THIS ENTRY HAS BEEN PROCESSED BY PDBE ON 30-MAY-18.                  
+REMARK 100 THE DEPOSITION ID IS D_1200010230.                                   
+REMARK 245                                                                      
+REMARK 245 EXPERIMENTAL DETAILS                                                 
+REMARK 245   RECONSTRUCTION METHOD          : SINGLE PARTICLE                   
+REMARK 245   SPECIMEN TYPE                  : NULL                              
+REMARK 245                                                                      
+REMARK 245 ELECTRON MICROSCOPE SAMPLE                                           
+REMARK 245   SAMPLE TYPE                    : PARTICLE                          
+REMARK 245   PARTICLE TYPE                  : POINT                             
+REMARK 245   NAME OF SAMPLE                 : RNA POLYMERASE II ELONGATION      
+REMARK 245                                    COMPLEX BOUND TO DSIF AND NELF;   
+REMARK 245                                    SUS SCROFA RNA POLYMERASE II;     
+REMARK 245                                    NEGATIVE ELONGATION FACTOR        
+REMARK 245                                    (NELF); DRB SENSITIVITY           
+REMARK 245                                    INDUCING FACTOR (DSIF); HIV-1     
+REMARK 245                                    PAUSE TRANSCRIPTION SCAFFOLD      
+REMARK 245   SAMPLE CONCENTRATION (MG ML-1) : 0.20                              
+REMARK 245   SAMPLE SUPPORT DETAILS         : NULL                              
+REMARK 245   SAMPLE VITRIFICATION DETAILS   : NULL                              
+REMARK 245   SAMPLE BUFFER                  : NULL                              
+REMARK 245   PH                             : 7.40                              
+REMARK 245   SAMPLE DETAILS                 : NULL                              
+REMARK 245                                                                      
+REMARK 245 DATA ACQUISITION                                                     
+REMARK 245   DATE OF EXPERIMENT                : NULL                           
+REMARK 245   NUMBER OF MICROGRAPHS-IMAGES      : 11740                          
+REMARK 245   TEMPERATURE (KELVIN)              : NULL                           
+REMARK 245   MICROSCOPE MODEL                  : FEI TITAN KRIOS                
+REMARK 245   DETECTOR TYPE                     : GATAN K2 QUANTUM (4K X 4K)     
+REMARK 245   MINIMUM DEFOCUS (NM)              : NULL                           
+REMARK 245   MAXIMUM DEFOCUS (NM)              : NULL                           
+REMARK 245   MINIMUM TILT ANGLE (DEGREES)      : NULL                           
+REMARK 245   MAXIMUM TILT ANGLE (DEGREES)      : NULL                           
+REMARK 245   NOMINAL CS                        : NULL                           
+REMARK 245   IMAGING MODE                      : BRIGHT FIELD                   
+REMARK 245   ELECTRON DOSE (ELECTRONS NM**-2)  : 46.00                          
+REMARK 245   ILLUMINATION MODE                 : SPOT SCAN                      
+REMARK 245   NOMINAL MAGNIFICATION             : 165000                         
+REMARK 245   CALIBRATED MAGNIFICATION          : NULL                           
+REMARK 245   SOURCE                            : FIELD EMISSION GUN             
+REMARK 245   ACCELERATION VOLTAGE (KV)         : 300                            
+REMARK 245   IMAGING DETAILS                   : NULL                           
+REMARK 247                                                                      
+REMARK 247 ELECTRON MICROSCOPY                                                  
+REMARK 247  THE COORDINATES IN THIS ENTRY WERE GENERATED FROM ELECTRON          
+REMARK 247  MICROSCOPY DATA. PROTEIN DATA BANK CONVENTIONS REQUIRE              
+REMARK 247  THAT CRYST1 AND SCALE RECORDS BE INCLUDED, BUT THE VALUES           
+REMARK 247  ON THESE RECORDS ARE MEANINGLESS EXCEPT FOR THE CALCULATION         
+REMARK 247  OF THE STRUCTURE FACTORS.                                           
+REMARK 300                                                                      
+REMARK 300 BIOMOLECULE: 1                                                       
+REMARK 300 SEE REMARK 350 FOR THE AUTHOR PROVIDED AND/OR PROGRAM                
+REMARK 300 GENERATED ASSEMBLY INFORMATION FOR THE STRUCTURE IN                  
+REMARK 300 THIS ENTRY. THE REMARK MAY ALSO PROVIDE INFORMATION ON               
+REMARK 300 BURIED SURFACE AREA.                                                 
+REMARK 350                                                                      
+REMARK 350 COORDINATES FOR A COMPLETE MULTIMER REPRESENTING THE KNOWN           
+REMARK 350 BIOLOGICALLY SIGNIFICANT OLIGOMERIZATION STATE OF THE                
+REMARK 350 MOLECULE CAN BE GENERATED BY APPLYING BIOMT TRANSFORMATIONS          
+REMARK 350 GIVEN BELOW.  BOTH NON-CRYSTALLOGRAPHIC AND                          
+REMARK 350 CRYSTALLOGRAPHIC OPERATIONS ARE GIVEN.                               
+REMARK 350                                                                      
+REMARK 350 BIOMOLECULE: 1                                                       
+REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT: 21-MERIC                          
+REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C, E, F, H, I, J, K, L,         
+REMARK 350                    AND CHAINS: N, P, T, U, V, W, X, Y, Z,            
+REMARK 350                    AND CHAINS: D, G                                  
+REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000            
+REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000            
+REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000            
+REMARK 465                                                                      
+REMARK 465 MISSING RESIDUES                                                     
+REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE                       
+REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN               
+REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)                
+REMARK 465                                                                      
+REMARK 465   M RES C SSSEQI                                                     
+REMARK 465     MET A     1                                                      
+REMARK 465     HIS A     2                                                      
+REMARK 465     GLY A     3                                                      
+REMARK 465     GLY A     4                                                      
+REMARK 465     GLY A     5                                                      
+REMARK 465     PRO A     6                                                      
+REMARK 465     PRO A     7                                                      
+REMARK 465     SER A     8                                                      
+REMARK 465     GLY A     9                                                      
+REMARK 465     ASP A    10                                                      
+REMARK 465     ILE A   153                                                      
+REMARK 465     CYS A   154                                                      
+REMARK 465     GLU A   155                                                      
+REMARK 465     GLY A   156                                                      
+REMARK 465     GLY A   157                                                      
+REMARK 465     GLU A   158                                                      
+REMARK 465     GLU A   159                                                      
+REMARK 465     MET A   160                                                      
+REMARK 465     ASP A   161                                                      
+REMARK 465     ASN A   162                                                      
+REMARK 465     LYS A   163                                                      
+REMARK 465     PHE A   164                                                      
+REMARK 465     GLY A   165                                                      
+REMARK 465     VAL A   166                                                      
+REMARK 465     GLU A   167                                                      
+REMARK 465     GLN A   168                                                      
+REMARK 465     PRO A   169                                                      
+REMARK 465     GLU A   170                                                      
+REMARK 465     GLY A   171                                                      
+REMARK 465     ASP A   172                                                      
+REMARK 465     GLU A   173                                                      
+REMARK 465     ASP A   174                                                      
+REMARK 465     LEU A   175                                                      
+REMARK 465     THR A   176                                                      
+REMARK 465     LYS A   177                                                      
+REMARK 465     GLU A   178                                                      
+REMARK 465     LYS A   179                                                      
+REMARK 465     GLY A   180                                                      
+REMARK 465     HIS A   181                                                      
+REMARK 465     HIS A   204                                                      
+REMARK 465     VAL A   205                                                      
+REMARK 465     ASN A   206                                                      
+REMARK 465     GLU A   207                                                      
+REMARK 465     ASP A   208                                                      
+REMARK 465     SER A   209                                                      
+REMARK 465     GLN A   210                                                      
+REMARK 465     GLU A   211                                                      
+REMARK 465     VAL A   265                                                      
+REMARK 465     MET A   266                                                      
+REMARK 465     GLN A   267                                                      
+REMARK 465     GLY A   268                                                      
+REMARK 465     SER A   269                                                      
+REMARK 465     ALA A   270                                                      
+REMARK 465     TYR A  1196                                                      
+REMARK 465     TYR A  1197                                                      
+REMARK 465     GLU A  1198                                                      
+REMARK 465     MET A  1199                                                      
+REMARK 465     PRO A  1200                                                      
+REMARK 465     ASP A  1201                                                      
+REMARK 465     PHE A  1202                                                      
+REMARK 465     ASP A  1203                                                      
+REMARK 465     VAL A  1204                                                      
+REMARK 465     ALA A  1205                                                      
+REMARK 465     ARG A  1206                                                      
+REMARK 465     SER A  1264                                                      
+REMARK 465     ASP A  1265                                                      
+REMARK 465     GLU A  1266                                                      
+REMARK 465     ASN A  1267                                                      
+REMARK 465     LYS A  1268                                                      
+REMARK 465     MET A  1269                                                      
+REMARK 465     GLN A  1270                                                      
+REMARK 465     GLU A  1271                                                      
+REMARK 465     GLU A  1272                                                      
+REMARK 465     GLU A  1273                                                      
+REMARK 465     GLU A  1274                                                      
+REMARK 465     VAL A  1275                                                      
+REMARK 465     VAL A  1276                                                      
+REMARK 465     ASP A  1277                                                      
+REMARK 465     LYS A  1278                                                      
+REMARK 465     MET A  1279                                                      
+REMARK 465     THR A  1488                                                      
+REMARK 465     ASN A  1489                                                      
+REMARK 465     ILE A  1490                                                      
+REMARK 465     PRO A  1491                                                      
+REMARK 465     GLY A  1492                                                      
+REMARK 465     LEU A  1493                                                      
+REMARK 465     GLY A  1494                                                      
+REMARK 465     ALA A  1495                                                      
+REMARK 465     ALA A  1496                                                      
+REMARK 465     GLY A  1497                                                      
+REMARK 465     PRO A  1498                                                      
+REMARK 465     THR A  1499                                                      
+REMARK 465     GLY A  1500                                                      
+REMARK 465     MET A  1501                                                      
+REMARK 465     PHE A  1502                                                      
+REMARK 465     PHE A  1503                                                      
+REMARK 465     GLY A  1504                                                      
+REMARK 465     SER A  1505                                                      
+REMARK 465     ALA A  1506                                                      
+REMARK 465     PRO A  1507                                                      
+REMARK 465     SER A  1508                                                      
+REMARK 465     PRO A  1509                                                      
+REMARK 465     MET A  1510                                                      
+REMARK 465     GLY A  1511                                                      
+REMARK 465     GLY A  1512                                                      
+REMARK 465     ILE A  1513                                                      
+REMARK 465     SER A  1514                                                      
+REMARK 465     PRO A  1515                                                      
+REMARK 465     ALA A  1516                                                      
+REMARK 465     MET A  1517                                                      
+REMARK 465     THR A  1518                                                      
+REMARK 465     PRO A  1519                                                      
+REMARK 465     TRP A  1520                                                      
+REMARK 465     ASN A  1521                                                      
+REMARK 465     GLN A  1522                                                      
+REMARK 465     GLY A  1523                                                      
+REMARK 465     ALA A  1524                                                      
+REMARK 465     THR A  1525                                                      
+REMARK 465     PRO A  1526                                                      
+REMARK 465     ALA A  1527                                                      
+REMARK 465     TYR A  1528                                                      
+REMARK 465     GLY A  1529                                                      
+REMARK 465     ALA A  1530                                                      
+REMARK 465     TRP A  1531                                                      
+REMARK 465     SER A  1532                                                      
+REMARK 465     PRO A  1533                                                      
+REMARK 465     SER A  1534                                                      
+REMARK 465     VAL A  1535                                                      
+REMARK 465     GLY A  1536                                                      
+REMARK 465     SER A  1537                                                      
+REMARK 465     GLY A  1538                                                      
+REMARK 465     MET A  1539                                                      
+REMARK 465     THR A  1540                                                      
+REMARK 465     PRO A  1541                                                      
+REMARK 465     GLY A  1542                                                      
+REMARK 465     ALA A  1543                                                      
+REMARK 465     ALA A  1544                                                      
+REMARK 465     GLY A  1545                                                      
+REMARK 465     PHE A  1546                                                      
+REMARK 465     SER A  1547                                                      
+REMARK 465     PRO A  1548                                                      
+REMARK 465     SER A  1549                                                      
+REMARK 465     ALA A  1550                                                      
+REMARK 465     ALA A  1551                                                      
+REMARK 465     SER A  1552                                                      
+REMARK 465     ASP A  1553                                                      
+REMARK 465     ALA A  1554                                                      
+REMARK 465     SER A  1555                                                      
+REMARK 465     GLY A  1556                                                      
+REMARK 465     PHE A  1557                                                      
+REMARK 465     SER A  1558                                                      
+REMARK 465     PRO A  1559                                                      
+REMARK 465     GLY A  1560                                                      
+REMARK 465     TYR A  1561                                                      
+REMARK 465     SER A  1562                                                      
+REMARK 465     PRO A  1563                                                      
+REMARK 465     ALA A  1564                                                      
+REMARK 465     TRP A  1565                                                      
+REMARK 465     SER A  1566                                                      
+REMARK 465     PRO A  1567                                                      
+REMARK 465     THR A  1568                                                      
+REMARK 465     PRO A  1569                                                      
+REMARK 465     GLY A  1570                                                      
+REMARK 465     SER A  1571                                                      
+REMARK 465     PRO A  1572                                                      
+REMARK 465     GLY A  1573                                                      
+REMARK 465     SER A  1574                                                      
+REMARK 465     PRO A  1575                                                      
+REMARK 465     GLY A  1576                                                      
+REMARK 465     PRO A  1577                                                      
+REMARK 465     SER A  1578                                                      
+REMARK 465     SER A  1579                                                      
+REMARK 465     PRO A  1580                                                      
+REMARK 465     TYR A  1581                                                      
+REMARK 465     ILE A  1582                                                      
+REMARK 465     PRO A  1583                                                      
+REMARK 465     SER A  1584                                                      
+REMARK 465     PRO A  1585                                                      
+REMARK 465     GLY A  1586                                                      
+REMARK 465     GLY A  1587                                                      
+REMARK 465     ALA A  1588                                                      
+REMARK 465     MET A  1589                                                      
+REMARK 465     SER A  1590                                                      
+REMARK 465     PRO A  1591                                                      
+REMARK 465     SER A  1592                                                      
+REMARK 465     TYR A  1593                                                      
+REMARK 465     SER A  1594                                                      
+REMARK 465     PRO A  1595                                                      
+REMARK 465     THR A  1596                                                      
+REMARK 465     SER A  1597                                                      
+REMARK 465     PRO A  1598                                                      
+REMARK 465     ALA A  1599                                                      
+REMARK 465     TYR A  1600                                                      
+REMARK 465     GLU A  1601                                                      
+REMARK 465     PRO A  1602                                                      
+REMARK 465     ARG A  1603                                                      
+REMARK 465     SER A  1604                                                      
+REMARK 465     PRO A  1605                                                      
+REMARK 465     GLY A  1606                                                      
+REMARK 465     GLY A  1607                                                      
+REMARK 465     TYR A  1608                                                      
+REMARK 465     THR A  1609                                                      
+REMARK 465     PRO A  1610                                                      
+REMARK 465     GLN A  1611                                                      
+REMARK 465     SER A  1612                                                      
+REMARK 465     PRO A  1613                                                      
+REMARK 465     SER A  1614                                                      
+REMARK 465     TYR A  1615                                                      
+REMARK 465     SER A  1616                                                      
+REMARK 465     PRO A  1617                                                      
+REMARK 465     THR A  1618                                                      
+REMARK 465     SER A  1619                                                      
+REMARK 465     PRO A  1620                                                      
+REMARK 465     SER A  1621                                                      
+REMARK 465     TYR A  1622                                                      
+REMARK 465     SER A  1623                                                      
+REMARK 465     PRO A  1624                                                      
+REMARK 465     THR A  1625                                                      
+REMARK 465     SER A  1626                                                      
+REMARK 465     PRO A  1627                                                      
+REMARK 465     SER A  1628                                                      
+REMARK 465     TYR A  1629                                                      
+REMARK 465     SER A  1630                                                      
+REMARK 465     PRO A  1631                                                      
+REMARK 465     THR A  1632                                                      
+REMARK 465     SER A  1633                                                      
+REMARK 465     PRO A  1634                                                      
+REMARK 465     ASN A  1635                                                      
+REMARK 465     TYR A  1636                                                      
+REMARK 465     SER A  1637                                                      
+REMARK 465     PRO A  1638                                                      
+REMARK 465     THR A  1639                                                      
+REMARK 465     SER A  1640                                                      
+REMARK 465     PRO A  1641                                                      
+REMARK 465     SER A  1642                                                      
+REMARK 465     TYR A  1643                                                      
+REMARK 465     SER A  1644                                                      
+REMARK 465     PRO A  1645                                                      
+REMARK 465     THR A  1646                                                      
+REMARK 465     SER A  1647                                                      
+REMARK 465     PRO A  1648                                                      
+REMARK 465     SER A  1649                                                      
+REMARK 465     TYR A  1650                                                      
+REMARK 465     SER A  1651                                                      
+REMARK 465     PRO A  1652                                                      
+REMARK 465     THR A  1653                                                      
+REMARK 465     SER A  1654                                                      
+REMARK 465     PRO A  1655                                                      
+REMARK 465     SER A  1656                                                      
+REMARK 465     TYR A  1657                                                      
+REMARK 465     SER A  1658                                                      
+REMARK 465     PRO A  1659                                                      
+REMARK 465     THR A  1660                                                      
+REMARK 465     SER A  1661                                                      
+REMARK 465     PRO A  1662                                                      
+REMARK 465     SER A  1663                                                      
+REMARK 465     TYR A  1664                                                      
+REMARK 465     SER A  1665                                                      
+REMARK 465     PRO A  1666                                                      
+REMARK 465     THR A  1667                                                      
+REMARK 465     SER A  1668                                                      
+REMARK 465     PRO A  1669                                                      
+REMARK 465     SER A  1670                                                      
+REMARK 465     TYR A  1671                                                      
+REMARK 465     SER A  1672                                                      
+REMARK 465     PRO A  1673                                                      
+REMARK 465     THR A  1674                                                      
+REMARK 465     SER A  1675                                                      
+REMARK 465     PRO A  1676                                                      
+REMARK 465     SER A  1677                                                      
+REMARK 465     TYR A  1678                                        
