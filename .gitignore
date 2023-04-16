@@ -1,3 +1,5 @@
 *.pdb
 *.map
 *.pickle
+__pycache__
+*.ipynb
