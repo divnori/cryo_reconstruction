@@ -1,7 +1,10 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-def point_density_representation(edm: np.ndarray) -> list[tuple[np.ndarray, np.float32]]:
+# point-density representation type
+PDR =  list[tuple[np.ndarray, np.float32]]
+
+def point_density_representation(edm: np.ndarray) -> PDR:
     """
     Converts a 3-dimensional electron density map into a point-density representation.
     This representation consists of a dictionary mapping coordinates (normalized to 
@@ -20,19 +23,23 @@ def point_density_representation(edm: np.ndarray) -> list[tuple[np.ndarray, np.f
     return pdr
     
 
-def random_projection(edm: np.ndarray, resolution: tuple[int, int]=(256, 256), distance_weighting=False) -> np.ndarray:
+def random_projection(
+        pdr: PDR, 
+        resolution: tuple[int, int]=(256, 256),
+        distance_weighting=False
+    ) -> np.ndarray:
     """
     Takes a 3-dimensional electron density map as input, and returns a random 2d 
     projection.
     """
-    pdr = point_density_representation(edm)
     rand_rot = Rotation.random()
     
     im = np.zeros(resolution)
 
-    # takes [-1, 1]^2 -> resolution
+    # TODO: allow for more padding
+    # takes [-0.5, 0.5]^2 -> resolution
     def coord_to_pixel(x, y) -> tuple[int, int]:
-        return (int(np.floor(resolution[0] * (x + 1)/2)), int(np.floor(resolution[1] * (y + 1)/2)))
+        return (int(np.floor(resolution[0] * (x + 0.5))), int(np.floor(resolution[1] * (y + 0.5))))
 
     for loc, den in pdr:
         rot_loc = rand_rot.apply(loc)
@@ -41,3 +48,4 @@ def random_projection(edm: np.ndarray, resolution: tuple[int, int]=(256, 256), d
         im[pixel] += den
     
     return im
+
