@@ -1,13 +1,23 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.transform import Rotation
 import torch
 import torch.nn as nn
 import e3nn
 from e3nn import o3
-import healpy as hp
+# from torchvision.transforms import ToPILImage
+# import healpy as hp
 
 # point-density representation type
 PDR =  list[tuple[np.ndarray, np.float32]]
+
+def normalize_edm(edm: np.ndarray) -> np.ndarray:
+    norm_min = np.min(edm[edm != 0])
+    norm_mdn = np.median(edm[edm != 0])
+    normalize_item = lambda x: (x - norm_min) / (norm_mdn - norm_min) if x != 0 else x 
+    vec_normalize_item = np.vectorize(normalize_item)
+    edm = vec_normalize_item(edm)
+    return edm
 
 def point_density_representation(edm: np.ndarray) -> PDR:
     """
@@ -17,50 +27,63 @@ def point_density_representation(edm: np.ndarray) -> PDR:
     """
     assert edm.ndim == 3, "edm must have rank 3"
 
-    pdr = []
-    for i in range(edm.shape[0]):
-        for j in range(edm.shape[1]):
-            for k in range(edm.shape[2]):
-                coord_norm = np.array([i / edm.shape[0] - 0.5, j / edm.shape[1] - 0.5, k / edm.shape[2] - 0.5])
-                if edm[i,j,k] != 0:
-                    pdr.append((coord_norm, edm[i,j,k]))
-
+    nonzero_coords = np.nonzero(edm)
+    pdr = [
+       ((np.array([i / edm.shape[0] - 0.5, j / edm.shape[1] - 0.5, k / edm.shape[2] - 0.5]), edm[i,j,k])) 
+       for i,j,k in zip(*nonzero_coords)
+    ]
+    
     return pdr
     
 
 def random_projection(
         pdr: PDR, 
         shape: tuple[int, int] = (256, 256),
+        batch_size: int = 1,
+        zoom_scale: float = np.sqrt(3),
         distance_weighting = False,
-        noise_stddev: float = 0
-    ) -> np.ndarray:
+        noise_stddev: float = 0,
+        seed: int = 69,
+    ) -> list[np.ndarray]:
     """
     Takes a 3-dimensional electron density map as input, and returns a random 2d 
     projection.
     """
-    rand_rot = Rotation.random()
     
-    im = np.zeros(shape)
+    rand_rots = Rotation.random(batch_size, seed)
 
     # TODO: allow for more padding
     # takes [-0.5, 0.5]^2 -> resolution
     def coord_to_pixel(x, y) -> tuple[int, int]:
-        return (int(np.floor(shape[0] * (x + 0.5))), int(np.floor(shape[1] * (y + 0.5))))
+        norm_x = (x + 0.5) / zoom_scale + (zoom_scale - 1) / (2 * zoom_scale)
+        norm_y = (y + 0.5) / zoom_scale + (zoom_scale - 1) / (2 * zoom_scale)
+        return (int(np.floor(shape[0] * norm_x)), int(np.floor(shape[1] * norm_y)))
 
-    for loc, den in pdr:
-        rot_loc = rand_rot.apply(loc)
-        pixel = coord_to_pixel(rot_loc[0], rot_loc[1])
-        if distance_weighting: pass # TODO: implement this
-        im[pixel] += den
+    images = []
 
-    # TODO: add blurring
-    for i in range(np.shape[0]):
-       for j in range(np.shape[1]):
-          noise = np.random.normal(0.0, noise_stddev)
-          
-
+    for rot in rand_rots:
+        im = np.zeros(shape)
+        print(rot.as_matrix())
+        for loc, den in pdr:
+            rot_loc = rot.apply(loc)
+            pixel = coord_to_pixel(rot_loc[0], rot_loc[1])
+            if distance_weighting: pass # TODO: implement this
+            im[pixel] += den
+        # TODO: add noise
+        if noise_stddev > 0:
+            for i in range(shape[0]):
+                for j in range(shape[1]):
+                    noise = np.random.normal(0.0, noise_stddev)
+                    im[i,j] += noise * np.abs(im[i, j])
+        images.append(im)
     
-    return im
+    return images
+
+
+def visualize_projection(projection: np.ndarray):
+    import matplotlib.pyplot as plt
+    plt.imshow(projection, cmap='hot')
+    plt.show()
 
 def s2_healpix_grid(rec_level: int=0, max_beta: float=np.pi/6):
     """Returns healpix grid up to a max_beta
@@ -155,3 +178,33 @@ class Image2SphereProjector(nn.Module):
     x = torch.relu(x)
     x = torch.einsum('ni,xyn->xyi', self.Y[self.ind], x) / self.ind.shape[0]**0.5
     return x
+
+def visualize_spherical_projection(fmap, projector):
+  fig = plt.figure(figsize=(10,3))
+  ax1 = fig.add_subplot(1,3,1)
+  ax1.imshow(ToPILImage()(fmap))
+  ax1.set_title('fmap')
+
+  ax2 = fig.add_subplot(1,3,2)
+  ax2.scatter(*projector.xyz.T[[0,2]])
+  ax2.set_xlim(-1.1, 1.1)
+  ax2.set_ylim(-1.1, 1.1)
+  ax2.set_aspect('equal')
+  ax2.set_title('grid')
+
+  # plot signal on sphere
+  u = np.linspace(0, 2*np.pi, 100)
+  v = np.linspace(0, np.pi, 101)
+  x = np.outer(np.cos(u), np.sin(v))
+  y = np.outer(np.sin(u), np.sin(v))
+  z = np.outer(np.ones(np.size(u)), np.cos(v))
+
+  harmonics = projector(fmap)
+  to_grid = o3.ToS2Grid(projector.lmax, (100, 101))
+  signal = to_grid(harmonics.squeeze(0).detach()).permute(2, 1, 0).numpy()
+  signal = (signal - signal.min())/(signal.max() - signal.min())
+
+  ax3 = fig.add_subplot(1,3,3, projection='3d')
+  ax3.plot_surface(x, y, z, facecolors=signal)
+  
+  ax3.set_title('harmonics')
