@@ -6,11 +6,13 @@ import biotite.structure.io.pdb as pdb
 import glob
 import mrcfile
 import os
+import numpy as np
 import pandas as pd
 import pickle
 import shutil
 import urllib.request
 import requests
+import src.projection as proj
 from tqdm import tqdm
 
 def download_from_csvs(path):
@@ -67,9 +69,47 @@ def save_dictionary(path):
     with open('processed_dataset.pickle', 'wb') as handle:
         pickle.dump(result, handle)
 
+def generate_projections(pickle_path):
+    with open(pickle_path, 'rb') as pickle_file:
+        content = pickle.load(pickle_file)
+
+    pdas = {}
+
+    for pdb_id, metadata in content.items():
+        # get the 3D electron density map 
+        edm = metadata["3D_map"] 
+        
+        # we skip over ill-formed/noisy data 
+        if np.count_nonzero(edm) > 0.5 * np.size(edm):
+            print(f"Skipped {pdb_id}.")
+            continue
+        
+        # normalize edm and convert to PDA representation
+        normalized_edm = proj.normalize_edm(edm)
+        pda = proj.point_density_array(normalized_edm)
+
+        pdas[pdb_id] = pda
+        print(f"Computed pda for {pdb_id}.")
+
+    shape = (512, 512)
+    projection_dict = {}
+    m = 50
+
+    for pdb_id, pda in pdas.items():
+        # generate m random 2D projections of the protein
+        print(f"Generating {m} projections for {pdb_id}.")
+        random_projs = proj.random_projection_pda(pda, shape=shape, batch_size = m)
+        projection_dict[pdb_id] = random_projs
+
+    # save the generated projections
+    with open('projections.pickle', 'wb') as handle:
+        pickle.dump(projection_dict, handle)
+
 if __name__ == "__main__":
     csv_path = "data_csvs"
     data_path = "data"
+    pickle_path = 'processed_dataset.pickle'
 
     #download_from_csvs(csv_path)
-    save_dictionary(data_path)
+    #save_dictionary(data_path)
+    generate_projections(pickle_path)
