@@ -1,4 +1,5 @@
 """
+Contains general SO(3) utils
 Source: https://github.com/dmklee/image2sphere/blob/main/src/so3_utils.py
 """
 
@@ -111,6 +112,7 @@ def so3_healpix_grid(rec_level: int=3):
     alpha = alpha.repeat(len(gamma))
     beta = beta.repeat(len(gamma))
     gamma = torch.repeat_interleave(gamma, npix)
+    print("Returning so3 healpix.")
     return torch.stack((alpha, beta, gamma)).float()
 
 
@@ -128,7 +130,8 @@ def wigner_D(l, alpha, beta, gamma):
     beta = beta[..., None, None] % (2 * np.pi)
     gamma = gamma[..., None, None] % (2 * np.pi)
     X = o3.so3_generators(l).to(alpha.device)
-    return torch.matrix_exp(alpha * X[1]) @ torch.matrix_exp(beta * X[0]) @ torch.matrix_exp(gamma * X[1])
+    wigner = torch.matrix_exp(alpha * X[1]) @ torch.matrix_exp(beta * X[0]) @ torch.matrix_exp(gamma * X[1])
+    return wigner
 
 
 def flat_wigner(lmax, alpha, beta, gamma):
@@ -204,3 +207,15 @@ if __name__ == "__main__":
     ascent_err = torch.cat(ascent_err)
     print('grid_error', torch.median(grid_err).item()*180/np.pi)
     print('ga_error', torch.median(ascent_err).item()*180/np.pi)
+
+def s2_healpix_grid(rec_level: int=0, max_beta: float=np.pi/6):
+    """Returns healpix grid up to a max_beta
+    """
+    n_side = 2**rec_level
+    npix = hp.nside2npix(n_side)
+    m = hp.query_disc(nside=n_side, vec=(0,0,1), radius=max_beta)
+    beta, alpha = hp.pix2ang(n_side, m)
+    alpha = torch.from_numpy(alpha)
+    beta = torch.from_numpy(beta)
+    return torch.stack((alpha, beta)).float()
+

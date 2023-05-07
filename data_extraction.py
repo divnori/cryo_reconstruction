@@ -110,6 +110,6 @@ if __name__ == "__main__":
     data_path = "data"
     pickle_path = 'processed_dataset.pickle'
 
-    #download_from_csvs(csv_path)
-    #save_dictionary(data_path)
+    # download_from_csvs(csv_path)
+    # save_dictionary(data_path)
     generate_projections(pickle_path)
