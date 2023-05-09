@@ -7,6 +7,8 @@ import e3nn
 from e3nn import o3
 from torchvision.transforms import ToPILImage
 import healpy as hp
+from math import sin
+from math import cos
 
 # point-density representation type
 PDR =  list[tuple[np.ndarray, np.float32]]
@@ -105,12 +107,17 @@ def random_projection_pda(
         distance_weighting = False,
         noise_stddev: float = 0,
         seed: int = 69,
+        random: bool = True,
+        rotations=None
     ) -> list[np.ndarray]:
     """
     Takes a PDA as input, and returns a random 2d projection.
     """
     
-    rand_rots = Rotation.random(batch_size, seed)
+    if random:
+        rand_rots = Rotation.random(batch_size, seed)
+    else:
+        rand_rots = rotations
 
     # takes [-0.5, 0.5]^2 -> resolution
     def coord_to_pixel(x, y) -> tuple[int, int]:
@@ -122,7 +129,11 @@ def random_projection_pda(
     coords, densities = pda
 
     for rot in rand_rots:
-        rot_mtx = rot.as_matrix()
+        if not isinstance(rot, np.ndarray):
+            rot_mtx = rot.as_matrix()
+        else:
+            rot_mtx = rot
+                    
         rot_coords = coords @ rot_mtx.T[:,:2]
         im = np.zeros(shape)
         # print(rot.as_matrix())
@@ -147,12 +158,11 @@ def random_projection_batched(
         zoom_scale: float = np.sqrt(3),
         distance_weighting = False,
         noise_stddev: float = 0,
-        seed: int = 69,
+        seed: int = 69
     ) -> list[np.ndarray]:
     """
     Takes a PDA as input, and returns a random 2d projection.
     """
-    
     rand_rots = Rotation.random(batch_size, seed)
 
     # takes [-0.5, 0.5]^2 -> resolution
@@ -191,3 +201,43 @@ def visualize_projection(projection: np.ndarray):
     import matplotlib.pyplot as plt
     plt.imshow(projection, cmap='hot')
     plt.show()
+
+def specific_projection_pda(
+        poses: torch.Tensor,
+        pda: np.ndarray
+    ) -> list[np.ndarray]:
+    """
+    poses: a tensor of shape (3,N) where each column represents a pose on sphere
+    specified by [alpha, beta, gamma]
+    return list of projections of PDA from these poses
+    alpha: 0-2pi around Y
+    beta: 0-pi around X
+    gamma: 0-2pi around Y
+    """
+
+    rotations = np.zeros((poses.shape[1], 3, 3))
+    for p in range(poses.shape[1]):
+        alpha = poses[0,p]
+        beta = poses[1,p]
+        gamma = poses[2,p]
+
+        Rx = np.array([[1,           0,            0],
+            [0,  cos(beta),  -sin(beta)],
+            [0,  sin(beta),   cos(beta)]])
+
+        Ry = np.array([[ cos(alpha),  0,   sin(alpha)],
+            [ 0,           1,   0         ],
+            [-sin(alpha),  0,   cos(alpha)]])
+
+        Rz = np.array([[cos(gamma),  -sin(gamma),  0],
+            [sin(gamma),   cos(gamma),  0],
+            [0,            0,           1]])
+
+        R = Rz @ Ry @ Rx
+
+        rotations[p] = R
+
+    projections = random_projection_pda(pda, shape=(512,512), random=True, rotations=rotations)
+    return projections
+
+    

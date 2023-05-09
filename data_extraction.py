@@ -91,19 +91,23 @@ def generate_projections(pickle_path):
         pdas[pdb_id] = pda
         print(f"Computed pda for {pdb_id}.")
 
-    shape = (512, 512)
-    projection_dict = {}
-    m = 50
+    # save the generated pdas
+    with open('pdas.pickle', 'wb') as handle:
+        pickle.dump(pdas, handle)
 
-    for pdb_id, pda in pdas.items():
-        # generate m random 2D projections of the protein
-        print(f"Generating {m} projections for {pdb_id}.")
-        random_projs = proj.random_projection_pda(pda, shape=shape, batch_size = m)
-        projection_dict[pdb_id] = random_projs
+    # shape = (512, 512)
+    # projection_dict = {}
+    # m = 50
 
-    # save the generated projections
-    with open('projections.pickle', 'wb') as handle:
-        pickle.dump(projection_dict, handle)
+    # for pdb_id, pda in pdas.items():
+    #     # generate m random 2D projections of the protein
+    #     print(f"Generating {m} projections for {pdb_id}.")
+    #     random_projs = proj.random_projection_pda(pda, shape=shape, batch_size = m)
+    #     projection_dict[pdb_id] = random_projs
+
+    # # save the generated projections
+    # with open('projections.pickle', 'wb') as handle:
+    #     pickle.dump(projection_dict, handle)
 
 if __name__ == "__main__":
     csv_path = "data_csvs"
