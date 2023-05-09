@@ -112,7 +112,6 @@ def so3_healpix_grid(rec_level: int=3):
     alpha = alpha.repeat(len(gamma))
     beta = beta.repeat(len(gamma))
     gamma = torch.repeat_interleave(gamma, npix)
-    print("Returning so3 healpix.")
     return torch.stack((alpha, beta, gamma)).float()
 
 

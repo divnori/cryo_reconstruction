@@ -32,17 +32,21 @@ class Encoder(nn.Module):
         s2_fdim=1
         so3_fdim=16
         s2_kernel_grid = so3_utils.s2_healpix_grid(max_beta=np.inf, rec_level=1)
+        print("defined s2")
         so3_kernel_grid = so3_utils.so3_near_identity_grid()
+        print("defined so3")
 
         so3_kernel_grid = so3_utils.so3_near_identity_grid()
+        print("defined so3")
         self.layers = nn.Sequential(
             model.S2Convolution(s2_fdim, so3_fdim, lmax, s2_kernel_grid),
             e3nn.nn.SO3Activation(lmax, lmax, act=torch.relu, resolution=10),
             model.SO3Convolution(so3_fdim, 1, lmax, so3_kernel_grid)
-        )
+        ).cuda()
+        print("defined layers")
 
-        output_xyx = so3_utils.so3_healpix_grid(rec_level=5)
-        self.eval_wigners = so3_utils.flat_wigner(lmax, *output_xyx).transpose(0,1)
+        output_xyx = so3_utils.so3_healpix_grid(rec_level=2).cuda() #rec_level is resolution
+        self.eval_wigners = so3_utils.flat_wigner(lmax, *output_xyx).transpose(0,1).cuda()
 
     def forward(self, x):
         return self.layers(x)
@@ -71,10 +75,17 @@ if __name__ == "__main__":
 
     # input is shape (# of proteins, # of projections per protein, # of spherical harmonic coefs)
 
+    
+
     encoder = Encoder()
-    harmonics = encoder.forward(input[0,0,:])
+
+    
+
+
+
+    harmonics = encoder.forward(input[0,0,:].cuda())
     probabilities = encoder.compute_probabilities(harmonics)
-    print(probabilities)
+    print(probabilities.shape)
 
 
 
