@@ -221,23 +221,23 @@ def specific_projection_pda(
         beta = poses[1,p]
         gamma = poses[2,p]
 
+        Ry_alpha = np.array([[ cos(alpha),  0,   sin(alpha)],
+            [ 0,           1,   0         ],
+            [-sin(alpha),  0,   cos(alpha)]])
+
         Rx = np.array([[1,           0,            0],
             [0,  cos(beta),  -sin(beta)],
             [0,  sin(beta),   cos(beta)]])
 
-        Ry = np.array([[ cos(alpha),  0,   sin(alpha)],
+        Ry_gamma = np.array([[ cos(gamma),  0,   sin(gamma)],
             [ 0,           1,   0         ],
-            [-sin(alpha),  0,   cos(alpha)]])
+            [-sin(gamma),  0,   cos(gamma)]])
 
-        Rz = np.array([[cos(gamma),  -sin(gamma),  0],
-            [sin(gamma),   cos(gamma),  0],
-            [0,            0,           1]])
-
-        R = Rz @ Ry @ Rx
+        R = Ry_gamma @ Rx @ Ry_alpha
 
         rotations[p] = R
 
-    projections = random_projection_pda(pda, shape=(512,512), random=True, rotations=rotations)
+    projections = random_projection_pda(pda, shape=(512,512), random=False, rotations=rotations)
     return projections
 
     

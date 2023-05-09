@@ -52,10 +52,15 @@ class Encoder(nn.Module):
 
     def forward(self, x, fmap, true_pda):
         harmonics = self.layers(x)
+        print("computed harmonics")
         probabilities = self.compute_probabilities(harmonics)
+        fifth_highest_val = torch.topk(probabilities, 5)[0].cpu().detach().numpy()[0,4]
+        probabilities = torch.where(probabilities < fifth_highest_val, 0, probabilities)
         high_prob_indices = probabilities.nonzero() #taking all nonzero probabilities as tensor of (N, 2)
         poses = self.position_to_pose(high_prob_indices.T[1]) # poses shape (3, # of nonzero probability poses)
+        print("got poses")
         projections = specific_projection_pda(poses, true_pda)
+        print("got projections")
         loss = 0
         for proj in projections:
             loss += F.mse_loss(torch.from_numpy(proj), torch.from_numpy(fmap))
@@ -117,7 +122,7 @@ if __name__ == "__main__":
     for e in range(args.epochs):
         model.train()
         for p in range(input.shape[0]):
-            for i in range(input.shape[1]):
+            for i in range(1): #for i in range(input.shape[1])
                 print(f"projection {i} epoch {e}")
                 optimizer.zero_grad()
                 harmonics, probabilities, loss = model.forward(input[p,i,:].cuda(), fmap, true_pdas[p])
