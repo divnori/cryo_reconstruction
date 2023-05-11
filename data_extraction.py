@@ -12,7 +12,7 @@ import pickle
 import shutil
 import urllib.request
 import requests
-import src.projection as proj
+# import src.projection as proj
 from tqdm import tqdm
 
 def download_from_csvs(path):
@@ -70,44 +70,48 @@ def save_dictionary(path):
         pickle.dump(result, handle)
 
 def generate_projections(pickle_path):
-    with open(pickle_path, 'rb') as pickle_file:
-        content = pickle.load(pickle_file)
+    # with open(pickle_path, 'rb') as pickle_file:
+    #     content = pickle.load(pickle_file)
 
-    pdas = {}
+    # pdas = {}
 
-    for pdb_id, metadata in content.items():
-        # get the 3D electron density map 
-        edm = metadata["3D_map"] 
+    # for pdb_id, metadata in content.items():
+    #     # get the 3D electron density map 
+    #     edm = metadata["3D_map"] 
         
-        # we skip over ill-formed/noisy data 
-        if np.count_nonzero(edm) > 0.5 * np.size(edm):
-            print(f"Skipped {pdb_id}.")
-            continue
+    #     # we skip over ill-formed/noisy data 
+    #     if np.count_nonzero(edm) > 0.5 * np.size(edm):
+    #         print(f"Skipped {pdb_id}.")
+    #         continue
         
-        # normalize edm and convert to PDA representation
-        normalized_edm = proj.normalize_edm(edm)
-        pda = proj.point_density_array(normalized_edm)
+    #     # normalize edm and convert to PDA representation
+    #     normalized_edm = proj.normalize_edm(edm)
+    #     pda = proj.point_density_array(normalized_edm)
 
-        pdas[pdb_id] = pda
-        print(f"Computed pda for {pdb_id}.")
+    #     pdas[pdb_id] = pda
+    #     print(f"Computed pda for {pdb_id}.")
 
-    # save the generated pdas
-    with open('pdas.pickle', 'wb') as handle:
-        pickle.dump(pdas, handle)
+    # # save the generated pdas
+    # with open('pdas.pickle', 'wb') as handle:
+    #     pickle.dump(pdas, handle)
 
-    # shape = (512, 512)
-    # projection_dict = {}
-    # m = 50
+    with open('pdas.pickle', 'rb') as pda_file:
+        pdas = pickle.load(pda_file)
 
-    # for pdb_id, pda in pdas.items():
-    #     # generate m random 2D projections of the protein
-    #     print(f"Generating {m} projections for {pdb_id}.")
-    #     random_projs = proj.random_projection_pda(pda, shape=shape, batch_size = m)
-    #     projection_dict[pdb_id] = random_projs
+    shape = (512, 512)
+    projection_dict = {}
+    m = 5
 
-    # # save the generated projections
-    # with open('projections.pickle', 'wb') as handle:
-    #     pickle.dump(projection_dict, handle)
+    for pdb_id, pda in pdas.items():
+        if (pdb_id != '6bdf'): continue
+        # generate m random 2D projections of the protein
+        print(f"Generating {m} projections for {pdb_id}.")
+        random_projs = proj.random_projection_pda_smart(pda, shape=shape, batch_size = m, noise_sigma=0.03)
+        projection_dict[pdb_id] = random_projs
+
+    # save the generated projections
+    with open('projections-clean.pickle', 'wb') as handle:
+        pickle.dump(projection_dict, handle)
 
 if __name__ == "__main__":
     csv_path = "data_csvs"
@@ -117,3 +121,9 @@ if __name__ == "__main__":
     # download_from_csvs(csv_path)
     # save_dictionary(data_path)
     # generate_projections(pickle_path)
+    with open('projections.pickle', 'rb') as handle:
+        projections = pickle.load(handle)
+    
+    import matplotlib.pyplot as plt
+    plt.imshow(projections['6bdf'][20], cmap='hot')
+    plt.savefig('proj-1.png')
