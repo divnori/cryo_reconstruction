@@ -445,16 +445,17 @@ if __name__=="__main__":
     for k,v in projections.items():
         i = 0
         for proj in v:
+            i+=1
             all_mses = []
             for gt in ground_truth:
-                i+=1
                 all_mses.append(((proj-gt)**2).mean())
-            min_index = all_mses.index(min(all_mses))
-            plt.imshow(ground_truth[min_index], cmap='hot')
-            plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/min_{i}")
-            max_index = all_mses.index(max(all_mses))
-            plt.imshow(ground_truth[max_index], cmap='hot')
-            plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/max_{i}")
+            all_mses_arr = np.array(all_mses)
+            min_indices = np.argpartition(all_mses_arr, 5)[:5]
+            print(all_mses_arr[min_indices])
+            for indx in list(min_indices):
+                plt.imshow(ground_truth[indx], cmap='hot')
+                plt.title(all_mses[indx])
+                plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/min_{indx}_{i}")
             plt.imshow(proj, cmap='hot')
             plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/proj_{i}")
             
