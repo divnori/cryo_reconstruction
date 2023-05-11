@@ -102,7 +102,7 @@ def random_projection_pda(
         
         images.append(im)
     
-    return images
+    return images, rand_rots
 
 
 def visualize_projection(projection: np.ndarray):

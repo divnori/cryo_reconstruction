@@ -15,6 +15,7 @@ Determinstic reconstruction
 """
 import argparse
 import e3nn
+from e3nn import o3
 import numpy as np
 import pickle
 import pandas as pd
@@ -29,6 +30,7 @@ from binary_label_metrics import BinaryLabelMetrics
 import model as model
 import predictor as predictor
 from projection import specific_projection_pda
+import projection
 import so3_utils
 import visualization
 
@@ -192,8 +194,8 @@ if __name__ == "__main__":
     with open('projections-clean.pickle', 'rb') as pickle_file:
         projection_dict = pickle.load(pickle_file)
 
-    # with open('pdas.pickle', 'rb') as pickle_file:
-    #     pda_dict = pickle.load(pickle_file)
+    with open('pdas.pickle', 'rb') as pickle_file:
+        pda_dict = pickle.load(pickle_file)
 
     shape = (args.img_shape, args.img_shape)
 
@@ -277,23 +279,39 @@ if __name__ == "__main__":
     checkpoint = torch.load("/home/dnori/cryo_reconstruction/model_checkpoints/model_epoch_212_roc_0.77.pt")
     model.load_state_dict(checkpoint['model_state_dict'])
 
-    # validation
-    true_vals = []
-    pred_vals = []
-    for p in range(fmaps.shape[0]):
-        pvals = []
-        for i in tqdm(range(40,50)): #input.shape[1]
-            probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-            pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    # # validation
+    # true_vals = []
+    # pred_vals = []
+    # for p in range(fmaps.shape[0]):
+    #     pvals = []
+    #     for i in tqdm(range(40,50)): #input.shape[1]
+    #         probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+    #         pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-            true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-            pred_vals.extend(pvals[i-40].tolist())
+    #         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+    #         pred_vals.extend(pvals[i-40].tolist())
 
     
-    scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-    model.blm.add_model(f'val', scores_df)
-    model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
-    model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
+    # scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    # model.blm.add_model(f'val', scores_df)
+    # model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
+    # model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
+
+    # figure
+    import matplotlib.pyplot as plt
+    for i in range(10,20):
+        images, rand_rots = projection.random_projection_pda(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
+        img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
+        plt.imshow(img, cmap="hot")
+        plt.savefig(f'figures/heatmap-{i}.png')
+        plt.close()
+        print(rot)
+        probabilities = model(torch.from_numpy(img[np.newaxis,np.newaxis,:,:]).float()).cpu().detach()
+        output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
+        output_rotmats = o3.angles_to_matrix(*output_xyx)
+        print(probabilities.shape)
+        so3_utils.plot_so3_distribution(probabilities[0], output_rotmats.cpu().detach(), gt_rotation=rot, idx=i)
+
 
     
 
