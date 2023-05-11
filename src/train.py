@@ -32,7 +32,7 @@ import time
 from tqdm import tqdm
 
 class CustomLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, fmaps):
         super(CustomLoss, self).__init__()
 
         with open('/home/dnori/cryo_reconstruction/ground_truth/all.pickle', 'rb') as pickle_result:
@@ -43,13 +43,21 @@ class CustomLoss(nn.Module):
         
         for i in range(len(self.ground_truth)):
             self.ground_truth[i] = torch.from_numpy(self.ground_truth[i]).cuda()
+        
+        self.mses = torch.zeros((fmaps.shape[0], fmaps.shape[1], len(self.ground_truth))).cuda()
+        
+        for i in range(self.mses.shape[0]):
+            for j in range(self.mses.shape[1]):
+                fmap = fmaps[i,j,:,:].cuda()
+                for k in range(self.mses.shape[2]):
+                    gt = self.ground_truth[k]
+                    self.mses[i,j,k] = ((gt - fmap)*(gt-fmap)).mean()
     
-    def forward(self, fmap, probabilities):
+    def forward(self, fmap_idx, probabilities):
         loss = 0
         for i in range(probabilities.shape[1]):
             p = probabilities[0,i]
-            gt = self.ground_truth[i]
-            mse = ((gt - fmap)*(gt-fmap)).mean()
+            mse = self.mses[fmap_idx[0], fmap_idx[1], i]
             loss += p * p * mse
         return loss
 
@@ -140,7 +148,7 @@ if __name__ == "__main__":
     model = Encoder(args)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
-    criterion = CustomLoss()
+    criterion = CustomLoss(fmaps)
 
     for e in range(args.epochs):
         optimizer.zero_grad()
@@ -151,7 +159,7 @@ if __name__ == "__main__":
             for i in tqdm(range(10)): #input.shape[1]
                 # print(f"\t\tprojection {i} epoch {e}")
                 probabilities = model.forward(input[p,i,:].cuda())
-                loss = criterion(fmaps[p,i,:].cuda(), probabilities.cuda())
+                loss = criterion((p, i), probabilities.cuda())
                 loss.backward(retain_graph=True)
                 tot_loss += loss
 
