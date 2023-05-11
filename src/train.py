@@ -50,6 +50,12 @@ class Encoder(nn.Module):
         self.sphere_grid = output_xyx
         self.eval_wigners = so3_utils.flat_wigner(lmax, *output_xyx).transpose(0,1).cuda() # for probability calculation
 
+        with open('/home/dnori/cryo_reconstruction/ground_truth/all.pickle', 'rb') as pickle_result:
+            self.ground_truth = pickle.load(pickle_result)
+        
+        if not self.ground_truth:
+            raise NotImplementedError("Missing ground truth data")
+
     def forward(self, x, fmap, true_pda):
         harmonics = self.layers(x)
         print("computed harmonics")
@@ -58,7 +64,10 @@ class Encoder(nn.Module):
         loss = 0
         for i in range(probabilities.shape[1]):
             p = probabilities[0,i]
-            gt = 
+            gt = self.ground_truth[i]
+            mse = ((gt - fmap)*(gt-fmap)).mean()
+            loss += p * p * mse
+
 
         # fifth_highest_val = torch.topk(probabilities, 5)[0].cpu().detach().numpy()[0,4]
         # probabilities = torch.where(probabilities < fifth_highest_val, 0, probabilities)
