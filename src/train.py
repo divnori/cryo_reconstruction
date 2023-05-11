@@ -143,6 +143,7 @@ if __name__ == "__main__":
     criterion = CustomLoss()
 
     for e in range(args.epochs):
+        optimizer.zero_grad()
         start_time = time.time()
         model.train()
         tot_loss = 0
@@ -155,8 +156,7 @@ if __name__ == "__main__":
                 tot_loss += loss
 
         optimizer.step()
-        optimizer.zero_grad()
-        print(f"Avg loss epoch {e}: {tot_loss/10}.")
+        print(f"Loss epoch {e}: {tot_loss/10}.")
                 
         epoch_time = time.time() - start_time
         print(f"Epoch {e} running time: {epoch_time}.")
