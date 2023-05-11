@@ -61,3 +61,4 @@ def visualize_spherical_projection(fmap, projector, i):
     ax3.set_title(f"harmonics")
 
     fig.savefig(f'/home/dnori/cryo_reconstruction/sphere_projections/proj_{i}.png')
+

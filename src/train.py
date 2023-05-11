@@ -224,66 +224,76 @@ if __name__ == "__main__":
     scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
     losses = []
 
-    for e in range(args.epochs):
-        optimizer.zero_grad()
-        start_time = time.time()
-        model.train()
-        tot_loss = 0
-        true_vals = []
-        pred_vals = []
-        for p in range(fmaps.shape[0]):
-            pvals = []
-            for i in tqdm(range(40)): #input.shape[1]
-                # print(f"\t\tprojection {i} epoch {e}")
-                probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-                pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
-                loss = criterion((p, i), probabilities.cuda())
-                loss.backward(retain_graph=True)
-                tot_loss += loss
-                nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
-                # print("sum", torch.sum(criterion.bin_mask[p,i,:]), torch.sum(probabilities[0]))
+    # for e in range(args.epochs):
+    #     optimizer.zero_grad()
+    #     start_time = time.time()
+    #     model.train()
+    #     tot_loss = 0
+    #     true_vals = []
+    #     pred_vals = []
+    #     for p in range(fmaps.shape[0]):
+    #         pvals = []
+    #         for i in tqdm(range(40)): #input.shape[1]
+    #             # print(f"\t\tprojection {i} epoch {e}")
+    #             probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+    #             pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    #             loss = criterion((p, i), probabilities.cuda())
+    #             loss.backward(retain_graph=True)
+    #             tot_loss += loss
+    #             nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
+    #             # print("sum", torch.sum(criterion.bin_mask[p,i,:]), torch.sum(probabilities[0]))
             
-            # if e % 20 == 0 or e == args.epochs-1:
-            roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(40)])
+    #     # if e % 20 == 0 or e == args.epochs-1:
+    #     roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(40)])
+    #     true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+    #     pred_vals.extend(pvals[i].tolist())
+    #     print(f"Average ROC of epoch {e}: {roc}")
+
+    #     if roc > 0.77:
+    #         rounded_roc = str(round(roc, 2))
+    #         filename = f'model_checkpoints/model_epoch_{e}_roc_{rounded_roc}.pt'
+    #         torch.save({
+    #             'epoch': e,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'loss': tot_loss,
+    #             }, filename)
+
+    #         scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    #         model.blm.add_model(f'epoch_{e}', scores_df)
+    #         model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
+    #         model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
+    #         with open('loss_curve_data.pickle', 'wb') as handle:
+    #             pickle.dump(losses, handle)
+    #         break
+
+    #     optimizer.step()
+    #     # scheduler.step()
+    #     print(f"Loss epoch {e}: {tot_loss/40}.")
+    #     losses.append(tot_loss.item()/40)
+    #     epoch_time = time.time() - start_time
+    #     print(f"Epoch {e} running time: {epoch_time}.")
+
+    checkpoint = torch.load("/home/dnori/cryo_reconstruction/model_checkpoints/model_epoch_212_roc_0.77.pt")
+    model.load_state_dict(checkpoint['model_state_dict'])
+
+    # validation
+    true_vals = []
+    pred_vals = []
+    for p in range(fmaps.shape[0]):
+        pvals = []
+        for i in tqdm(range(40,50)): #input.shape[1]
+            probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+            pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+
             true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-            pred_vals.extend(pvals[i].tolist())
-            print(f"Average ROC of epoch {e}: {roc}")
+            pred_vals.extend(pvals[i-40].tolist())
 
-            if roc > 0.77:
-                rounded_roc = str(round(roc, 2))
-                filename = f'model_checkpoints/model_epoch_{e}_roc_{rounded_roc}.pt'
-                torch.save({
-                    'epoch': e,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss,
-                    }, filename)
-
-                scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-                model.blm.add_model(f'epoch_{e}', scores_df)
-                model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-                model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-                with open('loss_curve_data.pickle', 'wb') as handle:
-                    pickle.dump(losses, handle)
-                break
-
-        optimizer.step()
-        # scheduler.step()
-        print(f"Loss epoch {e}: {tot_loss/40}.")
-        losses.append(tot_loss/40)
-        epoch_time = time.time() - start_time
-        print(f"Epoch {e} running time: {epoch_time}.")
-
-
-    # # validation
-    # true_vals = []
-    # pred_vals = []
-    # for p in range(fmaps.shape[0]):
-    #     pvals = []
-    #     for i in tqdm(range(40,50)): #input.shape[1]
-    #         probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-    #         pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
     
+    scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    model.blm.add_model(f'val', scores_df)
+    model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
+    model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
 
     
 
