@@ -116,4 +116,4 @@ if __name__ == "__main__":
 
     # download_from_csvs(csv_path)
     # save_dictionary(data_path)
-    generate_projections(pickle_path)
+    # generate_projections(pickle_path)

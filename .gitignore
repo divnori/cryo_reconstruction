@@ -1,4 +1,5 @@
 *.pdb
 *.map
 *.pickle
+*.png
 __pycache__
