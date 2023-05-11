@@ -28,6 +28,9 @@ import predictor as predictor
 from projection import specific_projection_pda
 import so3_utils
 
+import time
+from tqdm import tqdm
+
 class Encoder(nn.Module):
 
     def __init__(self):
@@ -58,7 +61,6 @@ class Encoder(nn.Module):
 
     def forward(self, x, fmap, true_pda):
         harmonics = self.layers(x)
-        print("computed harmonics")
         probabilities = self.compute_probabilities(harmonics) #[1,4608]
         
         loss = 0
@@ -67,19 +69,6 @@ class Encoder(nn.Module):
             gt = self.ground_truth[i]
             mse = ((gt - fmap)*(gt-fmap)).mean()
             loss += p * p * mse
-
-
-        # fifth_highest_val = torch.topk(probabilities, 5)[0].cpu().detach().numpy()[0,4]
-        # probabilities = torch.where(probabilities < fifth_highest_val, 0, probabilities)
-        # high_prob_indices = probabilities.nonzero() #taking all nonzero probabilities as tensor of (N, 2)
-        # poses = self.position_to_pose(high_prob_indices.T[1]) # poses shape (3, # of nonzero probability poses)
-        # print("got poses")
-        # projections = specific_projection_pda(poses, true_pda)
-        # print("got projections")
-        # loss = 0
-        # for proj in projections:
-        #     loss += F.mse_loss(torch.from_numpy(proj), torch.from_numpy(fmap))
-
         return harmonics, probabilities, loss
     
     def compute_probabilities(self, harmonics):
@@ -100,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default = 1e-3)
     parser.add_argument('--proj_per_img', type=int, default=50)
     parser.add_argument('--seed', type=int, default=7)
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--anneal_rate', type=float, default=0.95)
     args = parser.parse_args()
     torch.manual_seed(args.seed)
@@ -136,17 +125,23 @@ if __name__ == "__main__":
     scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
 
     for e in range(args.epochs):
+        start_time = time.time()
         model.train()
+        tot_loss = 0
         for p in range(input.shape[0]):
-            for i in range(1): #for i in range(input.shape[1])
-                print(f"projection {i} epoch {e}")
+            for i in tqdm(range(input.shape[1])):
+                # print(f"\t\tprojection {i} epoch {e}")
                 optimizer.zero_grad()
                 harmonics, probabilities, loss = model.forward(input[p,i,:].cuda(), fmap, true_pdas[p])
-                print(f"loss {loss}")
+                tot_loss += loss
 
-        loss.backward()
-        nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
+        print(f"Avg loss epoch {e}: {tot_loss/50}.")
+
+        loss.backward(retain_graph=True)
+        #nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
         optimizer.step()
+        epoch_time = time.time() - start_time
+        print(f"Epoch {e} running time: {epoch_time}.")
 
     
     
