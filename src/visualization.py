@@ -9,6 +9,8 @@ import pickle
 import seaborn as sns
 import torch
 from torchvision.transforms import ToPILImage
+import projection as proj
+import train
 
 def visualize_projection(fmap, projector, i):
     fig = plt.figure(figsize=(10,3))
@@ -75,5 +77,7 @@ def loss_curve(loss_pickle):
     sns_plot = sns.lineplot(data=df, x='epoch', y='train loss')
     sns_plot.figure.savefig("figures/loss_curve.png")
 
+
 if __name__ == "__main__":
-    loss_curve("/home/dnori/cryo_reconstruction/loss_curve_data.pickle")
+    # loss_curve("/home/dnori/cryo_reconstruction/loss_curve_data.pickle")
+    pass
