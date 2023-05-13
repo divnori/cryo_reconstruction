@@ -16,6 +16,7 @@ Determinstic reconstruction
 import argparse
 import e3nn
 from e3nn import o3
+import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import pandas as pd
@@ -106,9 +107,11 @@ class CustomLoss(nn.Module):
         # print("SUM",torch.sum(self.prob[0,0,:]))
 
     
-    def forward(self, fmap_idx, probabilities):
+    def forward(self, fmap_idx, probabilities, idx, epoch_num):
         p = probabilities[0].float()
         loss = torch.nn.BCELoss()
+        if epoch_num % 100 == 0:
+            visualize_maps(p, self.bin_mask[fmap_idx[0],fmap_idx[1]].float(), idx)
         return  loss(p, self.bin_mask[fmap_idx[0],fmap_idx[1]].float())
         # loss = 0
         # for i in range(probabilities.shape[1]):
@@ -175,6 +178,14 @@ class Encoder(nn.Module):
         # total depends on rec_level (resolution = 2, 4608 points, bin width = 15 degrees)
         return self.sphere_grid[:,indices]
 
+def visualize_maps(probabilities, bin_mask, i): # i is seed and also index
+    # images, rand_rots = projection.random_projection_pda(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
+    # img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
+    output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
+    output_rotmats = o3.angles_to_matrix(*output_xyx)
+    so3_utils.plot_so3_distribution(probabilities.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i)
+    so3_utils.plot_so3_distribution(bin_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="true")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -182,7 +193,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default = 1e-3)
     parser.add_argument('--proj_per_img', type=int, default=50)
     parser.add_argument('--seed', type=int, default=7)
-    parser.add_argument('--epochs', type=int, default=500)
+    parser.add_argument('--epochs', type=int, default=201)
     parser.add_argument('--anneal_rate', type=float, default=0.95)
     parser.add_argument('--sphere_fdim', type=int, default=64)
     parser.add_argument('--lmax', type=int, default=4)
@@ -226,91 +237,76 @@ if __name__ == "__main__":
     scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
     losses = []
 
-    # for e in range(args.epochs):
-    #     optimizer.zero_grad()
-    #     start_time = time.time()
-    #     model.train()
-    #     tot_loss = 0
-    #     true_vals = []
-    #     pred_vals = []
-    #     for p in range(fmaps.shape[0]):
-    #         pvals = []
-    #         for i in tqdm(range(40)): #input.shape[1]
-    #             # print(f"\t\tprojection {i} epoch {e}")
-    #             probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-    #             pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
-    #             loss = criterion((p, i), probabilities.cuda())
-    #             loss.backward(retain_graph=True)
-    #             tot_loss += loss
-    #             nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
-    #             # print("sum", torch.sum(criterion.bin_mask[p,i,:]), torch.sum(probabilities[0]))
+    for e in range(args.epochs):
+        optimizer.zero_grad()
+        start_time = time.time()
+        model.train()
+        tot_loss = 0
+        true_vals = []
+        pred_vals = []
+        for p in range(fmaps.shape[0]):
+            pvals = []
+            for i in tqdm(range(40)): #input.shape[1]
+                # print(f"\t\tprojection {i} epoch {e}")
+                probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+                pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+                loss = criterion((p, i), probabilities.cuda(), i, e)
+                loss.backward(retain_graph=True)
+                tot_loss += loss
+                nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
+                # print("sum", torch.sum(criterion.bin_mask[p,i,:]), torch.sum(probabilities[0]))
             
-    #     # if e % 20 == 0 or e == args.epochs-1:
-    #     roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(40)])
-    #     true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-    #     pred_vals.extend(pvals[i].tolist())
-    #     print(f"Average ROC of epoch {e}: {roc}")
+        # if e % 20 == 0 or e == args.epochs-1:
+        roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(40)])
+        true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+        pred_vals.extend(pvals[i].tolist())
+        print(f"Average ROC of epoch {e}: {roc}")
 
-    #     if roc > 0.77:
-    #         rounded_roc = str(round(roc, 2))
-    #         filename = f'model_checkpoints/model_epoch_{e}_roc_{rounded_roc}.pt'
-    #         torch.save({
-    #             'epoch': e,
-    #             'model_state_dict': model.state_dict(),
-    #             'optimizer_state_dict': optimizer.state_dict(),
-    #             'loss': tot_loss,
-    #             }, filename)
+        if roc > 0.77:
+            rounded_roc = str(round(roc, 2))
+            filename = f'model_checkpoints/model_epoch_{e}_roc_{rounded_roc}.pt'
+            torch.save({
+                'epoch': e,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': tot_loss,
+                }, filename)
 
-    #         scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-    #         model.blm.add_model(f'epoch_{e}', scores_df)
-    #         model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-    #         model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-    #         with open('loss_curve_data.pickle', 'wb') as handle:
-    #             pickle.dump(losses, handle)
-    #         break
+            scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+            model.blm.add_model(f'epoch_{e}', scores_df)
+            model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
+            model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
+            with open('loss_curve_data.pickle', 'wb') as handle:
+                pickle.dump(losses, handle)
+            break
 
-    #     optimizer.step()
-    #     # scheduler.step()
-    #     print(f"Loss epoch {e}: {tot_loss/40}.")
-    #     losses.append(tot_loss.item()/40)
-    #     epoch_time = time.time() - start_time
-    #     print(f"Epoch {e} running time: {epoch_time}.")
+        optimizer.step()
+        # scheduler.step()
+        print(f"Loss epoch {e}: {tot_loss/40}.")
+        losses.append(tot_loss.item()/40)
+        epoch_time = time.time() - start_time
+        print(f"Epoch {e} running time: {epoch_time}.")
 
     checkpoint = torch.load("/home/dnori/cryo_reconstruction/model_checkpoints/model_epoch_212_roc_0.77.pt")
     model.load_state_dict(checkpoint['model_state_dict'])
 
     # # validation
-    # true_vals = []
-    # pred_vals = []
-    # for p in range(fmaps.shape[0]):
-    #     pvals = []
-    #     for i in tqdm(range(40,50)): #input.shape[1]
-    #         probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-    #         pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    true_vals = []
+    pred_vals = []
+    for p in range(fmaps.shape[0]):
+        pvals = []
+        for i in tqdm(range(40,50)): #input.shape[1]
+            probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+            pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-    #         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-    #         pred_vals.extend(pvals[i-40].tolist())
+            true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+            pred_vals.extend(pvals[i-40].tolist())
 
     
-    # scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-    # model.blm.add_model(f'val', scores_df)
-    # model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
-    # model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
-
-    # figure
-    import matplotlib.pyplot as plt
-    for i in range(10,20):
-        images, rand_rots = projection.random_projection_pda(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
-        img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
-        plt.imshow(img, cmap="hot")
-        plt.savefig(f'figures/heatmap-{i}.png')
-        plt.close()
-        print(rot)
-        probabilities = model(torch.from_numpy(img[np.newaxis,np.newaxis,:,:]).float()).cpu().detach()
-        output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
-        output_rotmats = o3.angles_to_matrix(*output_xyx)
-        print(probabilities.shape)
-        so3_utils.plot_so3_distribution(probabilities[0], output_rotmats.cpu().detach(), gt_rotation=rot, idx=i)
+    scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    model.blm.add_model(f'val', scores_df)
+    model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
+    model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
 
 
     

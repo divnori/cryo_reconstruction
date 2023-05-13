@@ -123,6 +123,7 @@ def plot_so3_distribution(probs: torch.Tensor,
                           show_color_wheel: bool=True,
                           canonical_rotation=torch.eye(3),
                           idx=0,
+                          pred_or_true="pred"
                          ):
     '''
     Taken from https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py
@@ -154,8 +155,6 @@ def plot_so3_distribution(probs: torch.Tensor,
     beta = beta.cpu().detach().numpy()
 
     which_to_display = (probs > display_threshold_probability).cpu().detach().numpy()
-
-    print(type(alpha), type(beta), type(which_to_display))
 
     # Display the distribution
     ax.scatter(alpha[which_to_display],
@@ -189,7 +188,7 @@ def plot_so3_distribution(probs: torch.Tensor,
                  horizontalalignment='center',
                  verticalalignment='center', transform=ax.transAxes)
 
-    plt.savefig(f"figures/prob_dist-{idx}.png")
+    plt.savefig(f"visualized_maps/{pred_or_true}_dist-{idx}.png")
     plt.close()
 
 
