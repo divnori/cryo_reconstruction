@@ -175,7 +175,7 @@ def random_projection_pda_gt(
         
         im = scipy.ndimage.gaussian_filter(im, blur_sigma)
 
-        with open(f'ground_truth/image-{idx}.pickle', 'wb') as pickle_result:
+        with open(f'ground_truth_2/image-{idx}.pickle', 'wb') as pickle_result:
             pickle.dump(im, pickle_result)
 
         images.append(im)
@@ -195,27 +195,29 @@ def specific_projection_pda(
     gamma: 0-2pi around Y
     """
 
-    rotations = np.zeros((poses.shape[1], 3, 3))
-    for p in range(poses.shape[1]):
-        alpha = poses[0,p]
-        beta = poses[1,p]
-        gamma = poses[2,p]
+    # rotations = np.zeros((poses.shape[1], 3, 3))
 
-        Ry_alpha = np.array([[ cos(alpha),  0,   sin(alpha)],
-            [ 0,           1,   0         ],
-            [-sin(alpha),  0,   cos(alpha)]])
+    rotations = o3.angles_to_matrix(poses[0], poses[1], poses[2])
+    # for p in range(poses.shape[1]):
+    #     alpha = poses[0,p]
+    #     beta = poses[1,p]
+    #     gamma = poses[2,p]
 
-        Rx = np.array([[1,           0,            0],
-            [0,  cos(beta),  -sin(beta)],
-            [0,  sin(beta),   cos(beta)]])
+    #     Ry_alpha = np.array([[ cos(alpha),  0,   sin(alpha)],
+    #         [ 0,           1,   0         ],
+    #         [-sin(alpha),  0,   cos(alpha)]])
 
-        Ry_gamma = np.array([[ cos(gamma),  0,   sin(gamma)],
-            [ 0,           1,   0         ],
-            [-sin(gamma),  0,   cos(gamma)]])
+    #     Rx = np.array([[1,           0,            0],
+    #         [0,  cos(beta),  -sin(beta)],
+    #         [0,  sin(beta),   cos(beta)]])
 
-        R = Ry_gamma @ Rx @ Ry_alpha
+    #     Ry_gamma = np.array([[ cos(gamma),  0,   sin(gamma)],
+    #         [ 0,           1,   0         ],
+    #         [-sin(gamma),  0,   cos(gamma)]])
 
-        rotations[p] = R
+    #     R = Ry_gamma @ Rx @ Ry_alpha
+
+    #     rotations[p] = R
 
     projections = random_projection_pda_gt(pda, shape=(512,512), blur_sigma=(2,2), random=False, rotations=rotations)
     return projections
@@ -417,7 +419,7 @@ def generate_ground_truth():
     sphere_grid = so3_utils.so3_healpix_grid(rec_level=2)
     result = specific_projection_pda(sphere_grid, pda)
 
-    with open('ground_truth/all.pickle', 'wb') as pickle_result:
+    with open('ground_truth_2/all.pickle', 'wb') as pickle_result:
         pickle.dump(result, pickle_result)
 
 
