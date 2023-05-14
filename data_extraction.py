@@ -12,7 +12,7 @@ import pickle
 import shutil
 import urllib.request
 import requests
-# import src.projection as proj
+import src.projection as proj
 from tqdm import tqdm
 
 def download_from_csvs(path):
@@ -100,7 +100,7 @@ def generate_projections(pickle_path):
 
     shape = (512, 512)
     projection_dict = {}
-    m = 5
+    m = 500
 
     for pdb_id, pda in pdas.items():
         if (pdb_id != '6bdf'): continue
@@ -120,10 +120,11 @@ if __name__ == "__main__":
 
     # download_from_csvs(csv_path)
     # save_dictionary(data_path)
-    # generate_projections(pickle_path)
-    with open('projections.pickle', 'rb') as handle:
-        projections = pickle.load(handle)
+    generate_projections(pickle_path)
+
+    # with open('projections.pickle', 'rb') as handle:
+    #     projections = pickle.load(handle)
     
-    import matplotlib.pyplot as plt
-    plt.imshow(projections['6bdf'][20], cmap='hot')
-    plt.savefig('proj-1.png')
+    # import matplotlib.pyplot as plt
+    # plt.imshow(projections['6bdf'][20], cmap='hot')
+    # plt.savefig('proj-1.png')

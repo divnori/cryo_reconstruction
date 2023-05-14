@@ -42,7 +42,7 @@ class CustomLoss(nn.Module):
     def __init__(self):
         super(CustomLoss, self).__init__()
 
-        # with open('/home/dnori/cryo_reconstruction/ground_truth/all.pickle', 'rb') as pickle_result:
+        # with open('/home/dnori/cryo_reconstruction/ground_truth_2/all.pickle', 'rb') as pickle_result:
         #     self.ground_truth = pickle.load(pickle_result)
         
         # if not self.ground_truth:
@@ -54,38 +54,18 @@ class CustomLoss(nn.Module):
         # self.mses = torch.zeros((fmaps.shape[0], fmaps.shape[1], len(self.ground_truth)))
         # # self.prob = torch.zeros((fmaps.shape[0], fmaps.shape[1], len(self.ground_truth))).cuda()
         
+        # print_idx = 0
         # for i in range(self.mses.shape[0]):
         #     for j in range(self.mses.shape[1]):
         #         fmap = fmaps[i,j,:,:]
         #         for k in range(self.mses.shape[2]):
+        #             if print_idx % 100000 == 0:
+        #                 print(print_idx)
+        #             print_idx+=1
         #             gt = self.ground_truth[k]
         #             self.mses[i,j,k] = ((gt - fmap)*(gt-fmap)).mean()
-        
-        # # print("LOSS")
-        # # print(torch.min(self.mses[0,0,:]))
-        # # print(torch.min(self.mses[0,1,:]))
-        # # print(torch.max(self.mses[0,0,:]))
-        # # print(torch.max(self.mses[0,1,:]))
-
-
-        # # print("MAX_MIN_mse",max(torch.min(self.mses[0,i,:]) for i in range(50)))
-        # # print("MIN_MAX_mse",min(torch.max(self.mses[0,i,:]) for i in range(50)))
-
-        # # print(torch.min(self.mses[0,2,:]))
+    
         # self.prob = torch.exp(-.0001*self.mses*self.mses)
-
-
-        # # print(torch.min(self.prob[0,0,:]))
-        # # print(torch.min(self.prob[0,1,:]))
-        # # print(torch.max(self.prob[0,0,:]))
-        # # print(torch.max(self.prob[0,1,:]))
-
-        # # mm = min([(i, torch.max(self.prob[0,i,:])) for i in range(50)], key=lambda x:x[1])
-        # # print("MIN_MAX",mm)
-
-        # # import matplotlib.pyplot as plt
-        # # plt.hist(self.prob[0,mm[0],:].cpu().detach().numpy(), 20)
-        # # plt.savefig("prob_x2.png")
 
         # threshold_probs = np.repeat(np.expand_dims(np.expand_dims(np.array([torch.max(self.prob[0,i,:])-0.05 for i in range(fmaps.shape[1])]), axis=1).T, axis=2), self.prob.shape[2], axis=2)
 
@@ -97,22 +77,14 @@ class CustomLoss(nn.Module):
         with open("bin_mask.pickle", "rb") as f:
             self.bin_mask = pickle.load(f)
             self.bin_mask = self.bin_mask.cuda()
-            self.bce_weight = self.bin_mask + 9
-
-        # min_1s = min([torch.count_nonzero(self.bin_mask[:,i,:]) for i in range(50)])
-        # max_1s = max([torch.count_nonzero(self.bin_mask[:,i,:]) for i in range(50)])
-        # print("Min1,", min_1s)
-        # print("Max1,", max_1s)
-        # exit()
-        # print("SUM",torch.sum(self.prob[0,0,:]))
-
     
     def forward(self, fmap_idx, probabilities, idx, epoch_num):
         p = probabilities[0].float()
         loss = torch.nn.BCELoss()
-        if epoch_num % 100 == 0:
-            visualize_maps(p, self.bin_mask[fmap_idx[0],fmap_idx[1]].float(), idx)
+        if epoch_num % 50 == 0 and idx % 10 == 0:
+            visualize_maps(p, self.bin_mask[fmap_idx[0],fmap_idx[1]].float(), idx, epoch_num)
         return  loss(p, self.bin_mask[fmap_idx[0],fmap_idx[1]].float())
+
         # loss = 0
         # for i in range(probabilities.shape[1]):
         #     p = probabilities[0,i]
@@ -162,8 +134,6 @@ class Encoder(nn.Module):
         proj = self.projector(feat[0].cpu())[0,:,:].cuda()
         harmonics = self.layers(proj)
         probabilities = self.compute_probabilities(harmonics) #[1,4608]
-        # print(type(probabilities))
-        # print(probabilities.shape)
         return probabilities
     
     def compute_probabilities(self, harmonics):
@@ -178,27 +148,30 @@ class Encoder(nn.Module):
         # total depends on rec_level (resolution = 2, 4608 points, bin width = 15 degrees)
         return self.sphere_grid[:,indices]
 
-def visualize_maps(probabilities, bin_mask, i): # i is seed and also index
+def visualize_maps(probabilities, bin_mask, i, e): # i is seed and also index
     # images, rand_rots = projection.random_projection_pda(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
     # img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
     output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
     output_rotmats = o3.angles_to_matrix(*output_xyx)
-    so3_utils.plot_so3_distribution(probabilities.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i)
-    so3_utils.plot_so3_distribution(bin_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="true")
+    so3_utils.plot_so3_distribution(probabilities.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i,e=e)
+    so3_utils.plot_so3_distribution(bin_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="true", e=e)
+    prob_mask = torch.where(probabilities < 0.1, 0, 1)
+    so3_utils.plot_so3_distribution(prob_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="pred_mask",e=e)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--img_shape', type=int, default=512)
     parser.add_argument('--lr', type=float, default = 1e-3)
-    parser.add_argument('--proj_per_img', type=int, default=50)
+    parser.add_argument('--proj_per_img', type=int, default=500)
     parser.add_argument('--seed', type=int, default=7)
     parser.add_argument('--epochs', type=int, default=201)
-    parser.add_argument('--anneal_rate', type=float, default=0.95)
     parser.add_argument('--sphere_fdim', type=int, default=64)
     parser.add_argument('--lmax', type=int, default=4)
     parser.add_argument('--harmonic_coefs', type=int, default=25)
     parser.add_argument('--clip_norm', type=float, default=1.0)
+    parser.add_argument('--num_train_img', type=float, default=400)
+    parser.add_argument('--experiment_path', type=str, default='experiments/experiment_400images')
     args = parser.parse_args()
     torch.manual_seed(args.seed)
 
@@ -210,31 +183,17 @@ if __name__ == "__main__":
 
     shape = (args.img_shape, args.img_shape)
 
-    
-    # input = torch.zeros((len(projection_dict.items()), args.proj_per_img, args.sphere_fdim, args.harmonic_coefs))
     fmaps = torch.zeros((len(projection_dict.items()), args.proj_per_img, args.img_shape, args.img_shape))
-    # true_pdas = [] # list of pdas where each pda is (coords, densities)
 
     for i in range(len(projection_dict.items())):
         pdb_id, projections = list(projection_dict.items())[i]
-        # true_pdas.append(pda_dict[pdb_id])
-        for j in range(len(projections)):
+        for j in range(args.proj_per_img):
             fmap = projections[j]
-            # proj = projector(torch.from_numpy(fmap[np.newaxis, np.newaxis, : ,:]).float())[0,:,:]
-            # visualization.visualize_spherical_projection(fmap, projector, j)
-            # input[i, j, :, :] = proj
             fmaps[i, j, :, :] = torch.from_numpy(fmap)
-
-    # input is shape (# of proteins, # of projections per protein, sphere_fdim, # of spherical harmonic coefs)
-    # add train test split (perhaps sequence similarity split, start with random)
-
-    # starting with very simple case - training with only one protein
-    # input: a projection
 
     criterion = CustomLoss()
     model = Encoder(args)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
     losses = []
 
     for e in range(args.epochs):
@@ -246,25 +205,26 @@ if __name__ == "__main__":
         pred_vals = []
         for p in range(fmaps.shape[0]):
             pvals = []
-            for i in tqdm(range(40)): #input.shape[1]
-                # print(f"\t\tprojection {i} epoch {e}")
+            for i in tqdm(range(args.num_train_img)): #input.shape[1]
                 probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
                 pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+
+                if e == 0 and i % 10 == 0:
+                    plt.imshow(fmaps[p,i,:], cmap="hot")
+                    plt.savefig(f'{args.experiment_path}/images/proj-{i}.png')
+
                 loss = criterion((p, i), probabilities.cuda(), i, e)
                 loss.backward(retain_graph=True)
                 tot_loss += loss
                 nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
-                # print("sum", torch.sum(criterion.bin_mask[p,i,:]), torch.sum(probabilities[0]))
             
-        # if e % 20 == 0 or e == args.epochs-1:
-        roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(40)])
+        roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(args.num_train_img)])
         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
         pred_vals.extend(pvals[i].tolist())
         print(f"Average ROC of epoch {e}: {roc}")
 
-        if roc > 0.77:
-            rounded_roc = str(round(roc, 2))
-            filename = f'model_checkpoints/model_epoch_{e}_roc_{rounded_roc}.pt'
+        if e % 50 == 0:
+            filename = f'{args.experiment_path}/model_checkpoints/model_epoch_{e}.pt'
             torch.save({
                 'epoch': e,
                 'model_state_dict': model.state_dict(),
@@ -274,40 +234,41 @@ if __name__ == "__main__":
 
             scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
             model.blm.add_model(f'epoch_{e}', scores_df)
-            model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-            model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/epoch_{e}_{rounded_roc}_"})
-            with open('loss_curve_data.pickle', 'wb') as handle:
+            model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
+            model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
+            with open(f'{args.experiment_path}/accuracy_figs/loss_curve_data.pickle', 'wb') as handle:
                 pickle.dump(losses, handle)
-            break
 
         optimizer.step()
-        # scheduler.step()
-        print(f"Loss epoch {e}: {tot_loss/40}.")
-        losses.append(tot_loss.item()/40)
+        print(f"Loss epoch {e}: {tot_loss/args.num_train_img}.")
+        losses.append(tot_loss.item()/args.num_train_img)
         epoch_time = time.time() - start_time
         print(f"Epoch {e} running time: {epoch_time}.")
 
-    checkpoint = torch.load("/home/dnori/cryo_reconstruction/model_checkpoints/model_epoch_212_roc_0.77.pt")
-    model.load_state_dict(checkpoint['model_state_dict'])
+    # checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment1_50images/model_checkpoints/model_epoch_100.pt")
+    # model.load_state_dict(checkpoint['model_state_dict'])
 
     # # validation
     true_vals = []
     pred_vals = []
     for p in range(fmaps.shape[0]):
         pvals = []
-        for i in tqdm(range(40,50)): #input.shape[1]
+        for i in tqdm(range(args.num_train_img, args.proj_per_img)):
             probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
             pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
             true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-            pred_vals.extend(pvals[i-40].tolist())
+            pred_vals.extend(pvals[i-args.num_train_img].tolist())
 
-    
+            if i % 10 == 0:
+                visualize_maps(probabilities[0], criterion.bin_mask[p,i].float(), i, "val")
+                plt.imshow(fmaps[p,i,:], cmap="hot")
+                plt.savefig(f'{args.experiment_path}/images/proj-{i}-val.png')
+
     scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
     model.blm.add_model(f'val', scores_df)
-    model.blm.plot_roc(model_names=[f'val'],params={"save":True,"prefix":f"figures/val_"})
-    model.blm.plot(model_names=[f'val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f"figures/val_"})
-
+    model.blm.plot_roc(model_names=['val'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
+    model.blm.plot(model_names=['val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
 
     
 

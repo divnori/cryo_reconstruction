@@ -8,6 +8,7 @@ import torch
 from e3nn import o3
 import healpy as hp
 import matplotlib.pyplot as plt
+import pickle
 
 def compute_trace(rotA, rotB):
     '''
@@ -123,7 +124,8 @@ def plot_so3_distribution(probs: torch.Tensor,
                           show_color_wheel: bool=True,
                           canonical_rotation=torch.eye(3),
                           idx=0,
-                          pred_or_true="pred"
+                          pred_or_true="pred",
+                          e=0
                          ):
     '''
     Taken from https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py
@@ -188,8 +190,17 @@ def plot_so3_distribution(probs: torch.Tensor,
                  horizontalalignment='center',
                  verticalalignment='center', transform=ax.transAxes)
 
-    plt.savefig(f"visualized_maps/{pred_or_true}_dist-{idx}.png")
-    plt.close()
+    if pred_or_true == "pred":
+        plt.savefig(f"experiments/experiment_400images/predicted_probability_vis/pred-dist-{idx}-epoch-{e}.png")
+        plt.close()
+        with open(f"experiments/experiment_400images/predicted_probability_pkls/pred-dist-{idx}-epoch-{e}.pickle", "wb") as f:
+            pickle.dump(probs, f)
+    elif pred_or_true == "true" and (e == 0 or e == "val"):
+        plt.savefig(f"experiments/experiment_400images/gt_mask_vis/true-{idx}-epoch-{e}.png")
+        plt.close()
+    else:
+        plt.savefig(f"experiments/experiment_400images/predicted_mask_vis/pred-mask-{idx}-epoch-{e}.png")
+        plt.close()
 
 
 def s2_irreps(lmax):

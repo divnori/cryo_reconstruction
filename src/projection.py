@@ -11,7 +11,7 @@ import healpy as hp
 from math import sin
 from math import cos
 import pickle
-import so3_utils
+# import so3_utils
 
 # point-density representation type
 PDR =  list[tuple[np.ndarray, np.float32]]
@@ -128,7 +128,7 @@ def random_projection_pda_gt(
     if random:
         rand_rots = Rotation.random(batch_size, seed)
     else:
-        rand_rots = rotations
+        rand_rots = rotations.numpy()
 
     if blur_sigma is None:
         blur_sigma = (0.005 * shape[0], 0.005 * shape[1])
@@ -278,11 +278,11 @@ def random_projection_pda_smart(
             # if (i%100000 == 0): print(f"pixel {i}/{densities.shape[0]}")
             im[pixels[i,0], pixels[i,1]] += densities[i] 
 
-        # if noise_sigma > 0:
-        #     for i in range(shape[0]):
-        #         for j in range(shape[1]):
-        #             noise = np.random.normal(0.0, noise_sigma)
-        #             im[i,j] += noise * np.abs(im[i, j])
+        if noise_sigma > 0:
+            for i in range(shape[0]):
+                for j in range(shape[1]):
+                    noise = np.random.normal(0.0, noise_sigma)
+                    im[i,j] += noise * np.abs(im[i, j])
         
         im = scipy.ndimage.gaussian_filter(im, blur_sigma)
         images.append(im)
@@ -424,40 +424,40 @@ def generate_ground_truth():
 
 
 if __name__=="__main__":
-    # import time
-    # ctime = time.time()
-    # generate_ground_truth()
-    # etime = time.time() - ctime
-    # print(f"{etime=}")
+    import time
+    ctime = time.time()
+    generate_ground_truth()
+    etime = time.time() - ctime
+    print(f"{etime=}")
     
     # import matplotlib.pyplot as plt
     # for i in range(3000,3005):
-    #     with open(f'ground_truth/image-{i}.pickle', 'rb') as pickle_result:
+    #     with open(f'ground_truth_2/image-{i}.pickle', 'rb') as pickle_result:
     #         content = pickle.load(pickle_result)
     #     # print(content)
     #     plt.imshow(content, cmap='hot')
-    #     plt.savefig(f'example-{i}.png')
+    #     plt.savefig(f'ground_truth_2/example-{i}.png')
 
-    with open('/home/dnori/cryo_reconstruction/ground_truth/all.pickle', 'rb') as pickle_result:
-        ground_truth = pickle.load(pickle_result)
+    # with open('/home/dnori/cryo_reconstruction/ground_truth/all.pickle', 'rb') as pickle_result:
+    #     ground_truth = pickle.load(pickle_result)
 
-    with open('/home/dnori/cryo_reconstruction/projections.pickle', 'rb') as pickle_result:
-        projections = pickle.load(pickle_result)
+    # with open('/home/dnori/cryo_reconstruction/projections.pickle', 'rb') as pickle_result:
+    #     projections = pickle.load(pickle_result)
 
-    for k,v in projections.items():
-        i = 0
-        for proj in v:
-            i+=1
-            all_mses = []
-            for gt in ground_truth:
-                all_mses.append(((proj-gt)**2).mean())
-            all_mses_arr = np.array(all_mses)
-            min_indices = np.argpartition(all_mses_arr, 5)[:5]
-            print(all_mses_arr[min_indices])
-            for indx in list(min_indices):
-                plt.imshow(ground_truth[indx], cmap='hot')
-                plt.title(all_mses[indx])
-                plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/min_{indx}_{i}")
-            plt.imshow(proj, cmap='hot')
-            plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/proj_{i}")
+    # for k,v in projections.items():
+    #     i = 0
+    #     for proj in v:
+    #         i+=1
+    #         all_mses = []
+    #         for gt in ground_truth:
+    #             all_mses.append(((proj-gt)**2).mean())
+    #         all_mses_arr = np.array(all_mses)
+    #         min_indices = np.argpartition(all_mses_arr, 5)[:5]
+    #         print(all_mses_arr[min_indices])
+    #         for indx in list(min_indices):
+    #             plt.imshow(ground_truth[indx], cmap='hot')
+    #             plt.title(all_mses[indx])
+    #             plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/min_{indx}_{i}")
+    #         plt.imshow(proj, cmap='hot')
+    #         plt.savefig(f"/home/dnori/cryo_reconstruction/min_max_imgs/proj_{i}")
             
