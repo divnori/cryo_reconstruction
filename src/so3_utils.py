@@ -199,7 +199,7 @@ def plot_so3_distribution(probs: torch.Tensor,
         plt.savefig(f"experiments/experiment_400images/gt_mask_vis/true-{idx}-epoch-{e}.png")
         plt.close()
     else:
-        plt.savefig(f"experiments/experiment_400images/predicted_mask_vis/pred-mask-{idx}-epoch-{e}.png")
+        plt.savefig(f"experiments/experiment_400images/predicted_probability_vis/pred-mask-{idx}-epoch-{e}.png")
         plt.close()
 
 

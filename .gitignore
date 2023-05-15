@@ -3,5 +3,4 @@
 *.pickle
 *.png
 __pycache__
-*.pt
 *.out
