@@ -15,6 +15,9 @@ from scipy.spatial.transform import Rotation
 import so3_utils
 
 def visualize_projection(fmap, projector, i):
+    """
+    
+    """
     fig = plt.figure(figsize=(10,3))
     
     u = np.linspace(0, 2*np.pi, 100)
