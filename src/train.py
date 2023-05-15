@@ -30,7 +30,6 @@ import torch.optim.lr_scheduler as lr_scheduler
 from binary_label_metrics import BinaryLabelMetrics
 import model as model
 import predictor as predictor
-from projection import specific_projection_pda
 import projection
 import so3_utils
 import visualization
@@ -149,7 +148,7 @@ class Encoder(nn.Module):
         return self.sphere_grid[:,indices]
 
 def visualize_maps(probabilities, bin_mask, i, e): # i is seed and also index
-    # images, rand_rots = projection.random_projection_pda(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
+    # images, rand_rots = projection.project_pda_to_image(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
     # img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
     output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
     output_rotmats = o3.angles_to_matrix(*output_xyx)

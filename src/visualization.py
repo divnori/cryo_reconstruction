@@ -82,12 +82,12 @@ def loss_curve(loss_pickle):
 def test_equivariance(pda, model):
     seed = 0
     rot1 = Rotation.random(1, seed).as_matrix()
-    p1 = proj.random_projection_pda_smart(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot1)[0]
+    p1 = proj.project_pda_to_image(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot1)[0]
 
     a, b, g = torch.tensor([np.pi/6]), torch.tensor([np.pi/6]), torch.tensor([np.pi/6])
     mat = o3.angles_to_matrix(a, b, g)[0]
     rot2 = mat @ rot1
-    p2 = proj.random_projection_pda_smart(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot2)[0]
+    p2 = proj.project_pda_to_image(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot2)[0]
 
     d1 = model.forward(p1)
     d2 = model.forward(p2)
