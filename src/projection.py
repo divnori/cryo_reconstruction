@@ -161,7 +161,7 @@ def generate_ground_truth(rec_level=2):
     """
     Generate ground truth poses and respective projections.
     """
-    with open('pdas.pickle', 'rb') as pickle_file:
+    with open('../data/pda.pickle', 'rb') as pickle_file:
         content = pickle.load(pickle_file)
     pda = content['6bdf']
 
@@ -169,7 +169,7 @@ def generate_ground_truth(rec_level=2):
     rotation_matrices = o3.angles_to_matrix(sphere_grid[0], sphere_grid[1], sphere_grid[2])
     result = project_pda_to_image_gt(pda, rotation_matrices.numpy(), shape=(512,512), blur_sigma=(2,2))
 
-    with open('ground_truth/all.pickle', 'wb') as pickle_result:
+    with open('../ground_truth/all.pickle', 'wb') as pickle_result:
         pickle.dump(result, pickle_result)
 
 
