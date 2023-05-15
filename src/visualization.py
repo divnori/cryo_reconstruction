@@ -31,7 +31,6 @@ def visualize_projection(fmap, projector, i):
 
     ax3.set_title('harmonics')
 
-    
 
 def visualize_spherical_projection(fmap, projector, i):
     fig = plt.figure(figsize=(10,3))
