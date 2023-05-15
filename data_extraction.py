@@ -106,7 +106,7 @@ def generate_projections(pickle_path):
         if (pdb_id != '6bdf'): continue
         # generate m random 2D projections of the protein
         print(f"Generating {m} projections for {pdb_id}.")
-        random_projs = proj.project_pda_to_image(pda, shape=shape, batch_size = m, noise_sigma=0.03)
+        random_projs = proj.project_pda_to_image(pda, shape=shape, batch_size = m, blur_sigma=(2,2), noise_sigma=0.03)
         projection_dict[pdb_id] = random_projs
 
     # save the generated projections
