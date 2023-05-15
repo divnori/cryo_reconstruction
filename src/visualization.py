@@ -16,7 +16,10 @@ import so3_utils
 
 def visualize_projection(fmap, projector, i):
     """
-    
+    Visualizes 2D on SO(3) grid
+
+    fmap: 2D feature map
+    projector: projector onto half-sphere
     """
     fig = plt.figure(figsize=(10,3))
     
@@ -38,6 +41,12 @@ def visualize_projection(fmap, projector, i):
 
 
 def visualize_spherical_projection(fmap, projector, i):
+    """
+    Visualizes spherical harmonic on SO(3) grid
+
+    fmap: 2D feature map
+    projector: projector onto half-sphere
+    """
     fig = plt.figure(figsize=(10,3))
     #   ax1 = fig.add_subplot(1,3,1)
     #   ax1.imshow(ToPILImage()(fmap))
