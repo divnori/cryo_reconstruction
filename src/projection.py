@@ -3,6 +3,7 @@ from scipy.spatial.transform import Rotation
 import scipy
 from e3nn import o3
 import pickle
+import torch
 import so3_utils
 
 # point-density array type
