@@ -29,13 +29,53 @@ import torch.optim.lr_scheduler as lr_scheduler
 
 from binary_label_metrics import BinaryLabelMetrics
 import model as model
-import predictor as predictor
 import projection
 import so3_utils
 import visualization
 
 import time
 from tqdm import tqdm
+
+
+def generate_bin_mask(img_shape = 512, proj_per_img = 500):
+    """
+    Used to generate ground truth binary masks for training.
+    """
+
+    with open('../data/projections.pickle', 'rb') as pickle_file:
+        projection_dict = pickle.load(pickle_file)
+
+    fmaps = torch.zeros((len(projection_dict.items()), proj_per_img, img_shape, img_shape))
+
+    for i in range(len(projection_dict.items())):
+        pdb_id, projections = list(projection_dict.items())[i]
+        for j in range(proj_per_img):
+            fmap = projections[j]
+            fmaps[i, j, :, :] = torch.from_numpy(fmap)
+
+    with open('../ground_truth/all.pickle', 'rb') as pickle_result:
+        ground_truth = pickle.load(pickle_result)
+    
+    if not ground_truth:
+        raise NotImplementedError("Missing ground truth data")
+    
+    for i in range(len(ground_truth)):
+        ground_truth[i] = torch.from_numpy(ground_truth[i])
+    
+    mses = torch.zeros((fmaps.shape[0], fmaps.shape[1], len(ground_truth)))
+    
+    for i in range(mses.shape[0]):
+        for j in range(mses.shape[1]):
+            fmap = fmaps[i,j,:,:]
+            for k in range(mses.shape[2]):
+                gt = ground_truth[k]
+                mses[i,j,k] = ((gt - fmap)*(gt-fmap)).mean()
+
+    prob = torch.exp(-.0001*mses*mses)
+    threshold_probs = np.repeat(np.expand_dims(np.expand_dims(np.array([torch.max(prob[0,i,:])-0.05 for i in range(fmaps.shape[1])]), axis=1).T, axis=2), self.prob.shape[2], axis=2)
+    bin_mask = torch.where(prob > torch.from_numpy(threshold_probs), 1, 0)
+
+    return bin_mask
 
 class CustomLoss(nn.Module):
     def __init__(self):
