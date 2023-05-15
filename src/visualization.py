@@ -11,6 +11,8 @@ import torch
 from torchvision.transforms import ToPILImage
 import projection as proj
 import train
+from scipy.spatial.transform import Rotation
+import so3_utils
 
 def visualize_projection(fmap, projector, i):
     fig = plt.figure(figsize=(10,3))
@@ -76,6 +78,27 @@ def loss_curve(loss_pickle):
     sns_plot = sns.lineplot(data=df, x='epoch', y='train loss')
     sns_plot.figure.savefig("figures/loss_curve.png")
 
+def test_equivariance(pda, model):
+    seed = 0
+    rot1 = Rotation.random(1, seed).as_matrix()
+    p1 = proj.project_pda_to_image(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot1)[0]
+
+    a, b, g = torch.tensor([np.pi/6]), torch.tensor([np.pi/6]), torch.tensor([np.pi/6])
+    mat = o3.angles_to_matrix(a, b, g)[0]
+    rot2 = mat @ rot1
+    p2 = proj.project_pda_to_image(pda, shape=(512, 512), noise_sigma=0, random=False, rotations=rot2)[0]
+
+    d1 = model.forward(p1)
+    d2 = model.forward(p2)
+
+    so3_grid = so3_utils.so3_healpix_grid(rec_level=2)
+    mat_grid = o3.angles_to_matrix(so3_grid[0], so3_grid[1], so3_grid[2])
+    mat_grid_2 = mat @ mat_grid
+
+    map_2_to_1 = [so3_utils.nearest_rotmat(mat_grid_2[i:i+1], mat_grid) for i in range(mat_grid_2.size[0])]
+    
+    scores = [(d2[i] - d1[map_2_to_1[i]])**2 for i in range(d2.shape[0])]
+    return np.mean(scores)
 
 if __name__ == "__main__":
     # loss_curve("/home/dnori/cryo_reconstruction/loss_curve_data.pickle")

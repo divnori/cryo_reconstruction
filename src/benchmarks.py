@@ -33,13 +33,13 @@ def main():
     print(f"Best PDA generation time: {min(pda_generation_time)}")
 
     # def project_pda():
-    #     return proj.random_projection_pda(pda, noise_sigma=0, batch_size=5)
+    #     return proj.project_pda_to_image(pda, noise_sigma=0, batch_size=5)
 
     # project_pda_time, proj_pda = time_repeat(project_pda, number=1)
     # print(f"Best PDA projection time: {min(project_pda_time)}")
 
     def project_pda_smart():
-        return proj.random_projection_pda_smart(pda, noise_sigma=0, batch_size=5)
+        return proj.project_pda_to_image(pda, noise_sigma=0, batch_size=5)
 
     project_pda_smart_time, proj_pda_smart = time_repeat(project_pda_smart, number=1)
     print(f"Best PDA smart projection time: {min(project_pda_smart_time)}")
@@ -47,7 +47,7 @@ def main():
     pda_cuda = (torch.tensor(pda[0]).cuda(), pda[1])    
     print(f"Is cuda: {pda_cuda[0].is_cuda, type(pda_cuda[1])}")
     def project_pda_cuda():
-        return proj.random_projection_pda_cuda(pda_cuda, noise_sigma=0, batch_size=5)
+        return proj.project_pda_to_image_cuda(pda_cuda, noise_sigma=0, batch_size=5)
 
     # project_pda_cuda_time, proj_pda_cuda = time_repeat(project_pda_cuda, number=1)
     # print(f"Best PDA cuda projection time: {min(project_pda_cuda_time)}")
