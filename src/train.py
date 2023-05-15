@@ -244,38 +244,51 @@ if __name__ == "__main__":
     #     epoch_time = time.time() - start_time
     #     print(f"Epoch {e} running time: {epoch_time}.")
 
-    checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_400images/model_checkpoints/model_epoch_150.pt")
+    checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_400images/model_checkpoints/model_epoch_200.pt")
     model.load_state_dict(checkpoint['model_state_dict'])
 
-    # # validation
-    true_vals = []
-    pred_vals = []
-    d = {}
-    for p in range(fmaps.shape[0]):
-        pvals = []
-        for i in tqdm(range(args.num_train_img, args.proj_per_img)):
-            probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-            pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    # # # validation
+    # true_vals = []
+    # pred_vals = []
+    # d = {}
+    # for p in range(fmaps.shape[0]):
+    #     pvals = []
+    #     for i in tqdm(range(args.num_train_img, args.proj_per_img)):
+    #         probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+    #         pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-            true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-            pred_vals.extend(pvals[i-args.num_train_img].tolist())
+    #         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+    #         pred_vals.extend(pvals[i-args.num_train_img].tolist())
 
-            loss = criterion((p, i), probabilities.cuda(), i, 17) # epoch_num = 17 so never gets saved in function
-            d[i] = [loss.item(), i, probabilities.cuda()]
+    #         loss = criterion((p, i), probabilities.cuda(), i, 17) # epoch_num = 17 so never gets saved in function
+    #         d[i] = [loss.item(), i, probabilities.cuda()]
 
-            # if i % 10 == 0:
-            #     visualize_maps(probabilities[0], criterion.bin_mask[p,i].float(), i, "val")
-            #     plt.imshow(fmaps[p,i,:], cmap="hot")
-            #     plt.savefig(f'{args.experiment_path}/images/proj-{i}-val.png')
+    #         # if i % 10 == 0:
+    #         #     visualize_maps(probabilities[0], criterion.bin_mask[p,i].float(), i, "val")
+    #         #     plt.imshow(fmaps[p,i,:], cmap="hot")
+    #         #     plt.savefig(f'{args.experiment_path}/images/proj-{i}-val.png')
 
-    scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-    model.blm.add_model(f'val', scores_df)
-    model.blm.plot_roc(model_names=['val'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
-    model.blm.plot(model_names=['val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
+    # scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    # model.blm.add_model(f'val', scores_df)
+    # model.blm.plot_roc(model_names=['val'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
+    # model.blm.plot(model_names=['val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
 
-    for k,v in d.items():
-        if v[0] < 0.1:
-            visualize_maps(v[2][0], criterion.bin_mask[0,v[1]].float(), v[1], "val")
+    # for k,v in d.items():
+    #     if v[0] < 0.1:
+    #         visualize_maps(v[2][0], criterion.bin_mask[0,v[1]].float(), v[1], "val")
+
+    T = 10
+    eq_mses =[] 
+    rand_mses = []
+    for i in tqdm(range(T)):
+        mse = visualization.test_equivariance(pda_dict["6bdf"], model)
+        random_mse = visualization.test_equivariance(pda_dict["6bdf"], model, randomized=True)
+
+        eq_mses.append(mse)
+        rand_mses.append(random_mse)
+    
+    print("eq", np.mean(eq_mses), min(eq_mses), max(eq_mses))
+    print("random", np.mean(rand_mses), min(rand_mses), max(rand_mses))
     
 
     
