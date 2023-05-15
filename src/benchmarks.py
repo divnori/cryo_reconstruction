@@ -1,3 +1,9 @@
+"""
+This file was used for benchmarking data processing functions in order to 
+optimize these operations to be as time efficient as possible, given the 
+large amounts of data we operated on. 
+"""
+
 import projection as proj
 import numpy as np
 import pickle

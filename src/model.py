@@ -1,3 +1,8 @@
+"""
+This file repurposed from Image2Sphere [3] source code. We primarily make use of 
+the Image2Sphere projector.
+"""
+
 import numpy as np
 import torchvision
 import torch
