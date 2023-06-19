@@ -124,7 +124,7 @@ class CustomLoss(nn.Module):
         # with open("bin_mask.pickle", "wb") as f:
         #     pickle.dump(self.bin_mask, f)
 
-        with open("bin_mask.pickle", "rb") as f:
+        with open("pkls/bin_mask-10000.pickle", "rb") as f:
             self.bin_mask = pickle.load(f)
             self.bin_mask = self.bin_mask.cuda()
     
@@ -176,26 +176,18 @@ class Encoder(nn.Module):
             # nn.Conv2d(4, 8, kernel_size=3, stride=1, padding=1),
             # nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(512 * 512, 4608),
-            nn.BatchNorm1d(4608)
+            nn.Linear(512 * 512, 4608)
         ).cuda()
 
     def forward(self, x):
         # x is 2D orthographic projection
-        
-        # Initial 2d convolutional layers for feature extraction 
-        feat = self.featurizer(x.cuda())
+        # feat = self.featurizer(x.cuda())
+        # proj = self.projector(feat[0].cpu())[0,:,:].cuda()
+        # harmonics = self.layers(proj)
+        # probabilities = self.compute_probabilities(harmonics) #[1,4608]
 
-        # project onto half-sphere
-        proj = self.projector(feat[0].cpu())[0,:,:].cuda()
-
-        # spherical harmonic layers
-        harmonics = self.layers(proj)
-
-        probabilities = self.compute_probabilities(harmonics) #[1,4608]
-
-        # probabilities = self.vanilla_cnn(x.cuda())
-
+        probabilities = self.vanilla_cnn(x.cuda())
+        probabilities = self.last_layer(probabilities)
         return probabilities
     
     def compute_probabilities(self, harmonics):
@@ -227,10 +219,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     torch.manual_seed(args.seed)
 
-    with open('projections-clean.pickle', 'rb') as pickle_file:
+    with open('pkls/projections-clean-10000.pickle', 'rb') as pickle_file:
         projection_dict = pickle.load(pickle_file)
 
-    with open('pdas.pickle', 'rb') as pickle_file:
+    with open('pkls/pdas.pickle', 'rb') as pickle_file:
         pda_dict = pickle.load(pickle_file)
 
     shape = (args.img_shape, args.img_shape)
@@ -261,28 +253,28 @@ if __name__ == "__main__":
                 probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
                 pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-    #             if e == 0 and i % 10 == 0:
-    #                 plt.imshow(fmaps[p,i,:], cmap="hot")
-    #                 plt.savefig(f'{args.experiment_path}/images/proj-{i}.png')
+                # if e == 0 and i % 10 == 0:
+                #     plt.imshow(fmaps[p,i,:], cmap="hot")
+                #     plt.savefig(f'{args.experiment_path}/images/proj-{i}.png')
 
-    #             loss = criterion((p, i), probabilities.cuda(), i, e)
-    #             loss.backward(retain_graph=True)
-    #             tot_loss += loss
-    #             nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
+                loss = criterion((p, i), probabilities.cuda())
+                loss.backward(retain_graph=True)
+                tot_loss += loss
+                nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
             
         roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(args.num_train_img)])
         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
         pred_vals.extend(pvals[i].tolist())
         print(f"Average ROC of epoch {e}: {roc}")
 
-    #     if e % 50 == 0:
-    #         filename = f'{args.experiment_path}/model_checkpoints/model_epoch_{e}.pt'
-    #         torch.save({
-    #             'epoch': e,
-    #             'model_state_dict': model.state_dict(),
-    #             'optimizer_state_dict': optimizer.state_dict(),
-    #             'loss': tot_loss,
-    #             }, filename)
+        if e % 50 == 0:
+            filename = f'{args.experiment_path}/model_checkpoints/model_epoch_{e}.pt'
+            torch.save({
+                'epoch': e,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': tot_loss,
+                }, filename)
 
             scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
             model.blm.add_model(f'epoch_{e}', scores_df)
@@ -297,8 +289,8 @@ if __name__ == "__main__":
         epoch_time = time.time() - start_time
         print(f"Epoch {e} running time: {epoch_time}.")
 
-    checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_400images/model_checkpoints/model_epoch_200.pt")
-    model.load_state_dict(checkpoint['model_state_dict'])
+    # checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_400images/model_checkpoints/model_epoch_200.pt")
+    # model.load_state_dict(checkpoint['model_state_dict'])
 
     # # # validation
     # true_vals = []
