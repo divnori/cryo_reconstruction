@@ -1,3 +1,8 @@
+"""
+Contains the Image2Sphere [3] projector, which we use in our model.
+Source: https://github.com/dmklee/image2sphere/blob/main/src/models.py
+"""
+
 import numpy as np
 import torchvision
 import torch

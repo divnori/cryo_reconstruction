@@ -1,5 +1,5 @@
 """
-Contains general SO(3) utils
+Contains general SO(3) utils, from Image2Sphere [3].
 Source: https://github.com/dmklee/image2sphere/blob/main/src/so3_utils.py
 """
 
