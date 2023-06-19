@@ -4,7 +4,7 @@ import scipy
 from e3nn import o3
 import pickle
 import torch
-import so3_utils
+# import so3_utils
 
 # point-density array type
 PDA = tuple[np.ndarray, np.ndarray]
@@ -89,7 +89,7 @@ def project_pda_to_image(
     coords, densities = pda
 
     for idx, rot in enumerate(rand_rots):
-        # print(f"Starting rotation {idx}")
+        print(f"Starting rotation {idx}")
         if not isinstance(rot, np.ndarray):
             rot_mtx = rot.as_matrix()
         else:

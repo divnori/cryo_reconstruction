@@ -95,12 +95,12 @@ def generate_projections(pickle_path):
     # with open('pdas.pickle', 'wb') as handle:
     #     pickle.dump(pdas, handle)
 
-    with open('pdas.pickle', 'rb') as pda_file:
+    with open('pkls/pdas.pickle', 'rb') as pda_file:
         pdas = pickle.load(pda_file)
 
     shape = (512, 512)
     projection_dict = {}
-    m = 500
+    m = 10000
 
     for pdb_id, pda in pdas.items():
         if (pdb_id != '6bdf'): continue
@@ -110,13 +110,13 @@ def generate_projections(pickle_path):
         projection_dict[pdb_id] = random_projs
 
     # save the generated projections
-    with open('projections-clean.pickle', 'wb') as handle:
+    with open('pkls/projections-clean-10000.pickle', 'wb') as handle:
         pickle.dump(projection_dict, handle)
 
 if __name__ == "__main__":
     csv_path = "data_csvs"
     data_path = "data"
-    pickle_path = 'processed_dataset.pickle'
+    pickle_path = 'data/processed_dataset.pickle'
 
     # download_from_csvs(csv_path)
     # save_dictionary(data_path)
