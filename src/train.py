@@ -19,6 +19,7 @@ bin_mask.pickle - label with which we supervise training
 """
 import argparse
 import e3nn
+from e3nn import o3
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
@@ -143,9 +144,9 @@ class Encoder(nn.Module):
         self.blm = BinaryLabelMetrics()
 
         self.featurizer = nn.Sequential(
-            nn.Conv2d(1, 3, 5, 2),
+            nn.Conv2d(1, 3, 5, 3),
             nn.ReLU(),
-            nn.Conv2d(3, 5, 5, 2)
+            nn.Conv2d(3, 5, 5, 3)
         ).cuda()
 
         lmax=args.lmax
@@ -170,13 +171,9 @@ class Encoder(nn.Module):
 
         self.last_layer = nn.Sigmoid().cuda()
 
-        self.vanilla_cnn = nn.Sequential(
-            # nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1),
-            # nn.ReLU(),
-            # nn.Conv2d(4, 8, kernel_size=3, stride=1, padding=1),
-            # nn.ReLU(),
+        self.linear = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(512 * 512, 4608)
+            nn.Linear(5 * 56 * 56, 4608)
         ).cuda()
 
     def forward(self, x):
@@ -186,9 +183,7 @@ class Encoder(nn.Module):
         # harmonics = self.layers(proj)
         # probabilities = self.compute_probabilities(harmonics) #[1,4608]
 
-        probabilities = self.vanilla_cnn(x.cuda())
-        probabilities = self.last_layer(probabilities)
-        return probabilities
+        return self.last_layer(self.linear(self.featurizer(x.cuda())))
     
     def compute_probabilities(self, harmonics):
         ''' compute probabilities over grid resulting from SO(3) group convolution'''
@@ -202,20 +197,30 @@ class Encoder(nn.Module):
         # total depends on rec_level (resolution = 2, 4608 points, bin width = 15 degrees)
         return self.sphere_grid[:,indices]
 
+def visualize_maps(probabilities, bin_mask, i, e): # i is seed and also index
+    # images, rand_rots = projection.project_pda_to_image(pda_dict['6bdf'], shape=(512,512), noise_sigma=0, seed=i)
+    # img, rot = images[0], torch.tensor(rand_rots[0].as_matrix()).float()
+    output_xyx = so3_utils.so3_healpix_grid(rec_level=2)
+    output_rotmats = o3.angles_to_matrix(*output_xyx)
+    so3_utils.plot_so3_distribution(probabilities.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i,e=e)
+    so3_utils.plot_so3_distribution(bin_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="true", e=e)
+    prob_mask = torch.where(probabilities < 0.1, 0, 1)
+    so3_utils.plot_so3_distribution(prob_mask.float().cpu().detach(), output_rotmats.cpu().detach(), idx=i, pred_or_true="pred_mask",e=e)
+
 # Main training loop
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--img_shape', type=int, default=512)
     parser.add_argument('--lr', type=float, default = 1e-3)
-    parser.add_argument('--proj_per_img', type=int, default=10000)
+    parser.add_argument('--proj_per_img', type=int, default=100)
     parser.add_argument('--seed', type=int, default=7)
     parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--sphere_fdim', type=int, default=64)
     parser.add_argument('--lmax', type=int, default=4)
     parser.add_argument('--harmonic_coefs', type=int, default=25)
     parser.add_argument('--clip_norm', type=float, default=1.0)
-    parser.add_argument('--num_train_img', type=float, default=9000)
-    parser.add_argument('--experiment_path', type=str, default='experiments/experiment_9000images_linear')
+    parser.add_argument('--num_train_img', type=float, default=50)
+    parser.add_argument('--experiment_path', type=str, default='experiments/experiment_50images_conv')
     args = parser.parse_args()
     torch.manual_seed(args.seed)
 
@@ -240,100 +245,94 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     losses = []
 
-    for e in range(args.epochs):
-        optimizer.zero_grad()
-        start_time = time.time()
-        model.train()
-        tot_loss = 0
-        true_vals = []
-        pred_vals = []
-        for p in range(fmaps.shape[0]):
-            pvals = []
-            for i in tqdm(range(args.num_train_img)): #input.shape[1]
-                probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-                pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    # for e in range(args.epochs):
+    #     optimizer.zero_grad()
+    #     start_time = time.time()
+    #     model.train()
+    #     tot_loss = 0
+    #     true_vals = []
+    #     pred_vals = []
+    #     for p in range(fmaps.shape[0]):
+    #         pvals = []
+    #         for i in tqdm(range(args.num_train_img)): #input.shape[1]
+    #             probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+    #             pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-                # if e == 0 and i % 10 == 0:
-                #     plt.imshow(fmaps[p,i,:], cmap="hot")
-                #     plt.savefig(f'{args.experiment_path}/images/proj-{i}.png')
+    #             if e == 0 and i % 10 == 0:
+    #                 plt.imshow(fmaps[p,i,:], cmap="hot")
+    #                 plt.savefig(f'{args.experiment_path}/images/proj-{i}.png')
 
-                loss = criterion((p, i), probabilities.cuda())
-                loss.backward(retain_graph=True)
-                tot_loss += loss
-                nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
+    #             loss = criterion((p, i), probabilities.cuda())
+    #             loss.backward(retain_graph=True)
+    #             tot_loss += loss
+    #             nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
             
-        roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(args.num_train_img)])
-        true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-        pred_vals.extend(pvals[i].tolist())
-        print(f"Average ROC of epoch {e}: {roc}")
+    #     roc = np.mean([roc_auc_score(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy(), pvals[i]) for i in range(args.num_train_img)])
+    #     true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+    #     pred_vals.extend(pvals[i].tolist())
+    #     print(f"Average ROC of epoch {e}: {roc}")
 
-        if e % 50 == 0:
-            filename = f'{args.experiment_path}/model_checkpoints/model_epoch_{e}.pt'
-            torch.save({
-                'epoch': e,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': tot_loss,
-                }, filename)
+    #     if e % 50 == 0:
+    #         filename = f'{args.experiment_path}/model_checkpoints/model_epoch_{e}.pt'
+    #         torch.save({
+    #             'epoch': e,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'loss': tot_loss,
+    #             }, filename)
 
-            scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-            model.blm.add_model(f'epoch_{e}', scores_df)
-            model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
-            model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
-            with open(f'{args.experiment_path}/accuracy_figs/loss_curve_data.pickle', 'wb') as handle:
-                pickle.dump(losses, handle)
+    #         scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    #         model.blm.add_model(f'epoch_{e}', scores_df)
+    #         model.blm.plot_roc(model_names=[f'epoch_{e}'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
+    #         model.blm.plot(model_names=[f'epoch_{e}'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/epoch_{e}_'})
+    #         with open(f'{args.experiment_path}/accuracy_figs/loss_curve_data.pickle', 'wb') as handle:
+    #             pickle.dump(losses, handle)
 
-        optimizer.step()
-        print(f"Loss epoch {e}: {tot_loss/args.num_train_img}.")
-        losses.append(tot_loss.item()/args.num_train_img)
-        epoch_time = time.time() - start_time
-        print(f"Epoch {e} running time: {epoch_time}.")
+    #     optimizer.step()
+    #     print(f"Loss epoch {e}: {tot_loss/args.num_train_img}.")
+    #     losses.append(tot_loss.item()/args.num_train_img)
+    #     epoch_time = time.time() - start_time
+    #     print(f"Epoch {e} running time: {epoch_time}.")
 
-    # checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_400images/model_checkpoints/model_epoch_200.pt")
-    # model.load_state_dict(checkpoint['model_state_dict'])
+    checkpoint = torch.load("/home/dnori/cryo_reconstruction/experiments/experiment_50images_conv/model_checkpoints/model_epoch_150.pt")
+    model.load_state_dict(checkpoint['model_state_dict'])
 
-    # # # validation
-    # true_vals = []
-    # pred_vals = []
-    # d = {}
-    # for p in range(fmaps.shape[0]):
-    #     pvals = []
-    #     for i in tqdm(range(args.num_train_img, args.proj_per_img)):
-    #         probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
-    #         pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
+    # # validation
+    true_vals = []
+    pred_vals = []
+    for p in range(fmaps.shape[0]):
+        pvals = []
+        for i in tqdm(range(args.num_train_img, args.proj_per_img)):
+            probabilities = model.forward(fmaps[p:p+1,i:i+1,:])
+            pvals.append(probabilities[0].float().cpu().detach().clone().numpy())
 
-    #         true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
-    #         pred_vals.extend(pvals[i-args.num_train_img].tolist())
+            true_vals.extend(criterion.bin_mask[p,i].float().cpu().detach().clone().numpy().tolist())
+            pred_vals.extend(pvals[i-args.num_train_img].tolist())
 
-    #         loss = criterion((p, i), probabilities.cuda(), i, 17) # epoch_num = 17 so never gets saved in function
-    #         d[i] = [loss.item(), i, probabilities.cuda()]
+            loss = criterion((p, i), probabilities.cuda())
 
-    #         # if i % 10 == 0:
-    #         #     visualize_maps(probabilities[0], criterion.bin_mask[p,i].float(), i, "val")
-    #         #     plt.imshow(fmaps[p,i,:], cmap="hot")
-    #         #     plt.savefig(f'{args.experiment_path}/images/proj-{i}-val.png')
+            if i % 10 == 0:
+                visualize_maps(probabilities[0], criterion.bin_mask[p,i].float(), i, "val")
+                plt.imshow(fmaps[p,i,:], cmap="hot")
+                plt.savefig(f'{args.experiment_path}/images/proj-{i}-val.png')
 
-    # scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
-    # model.blm.add_model(f'val', scores_df)
-    # model.blm.plot_roc(model_names=['val'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
-    # model.blm.plot(model_names=['val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
+    scores_df = pd.DataFrame({'label':true_vals,'score':pred_vals})
+    model.blm.add_model(f'val', scores_df)
+    model.blm.plot_roc(model_names=['val'],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
+    model.blm.plot(model_names=['val'],chart_types=[1,2,3,4,5],params={"save":True,"prefix":f'{args.experiment_path}/accuracy_figs/val_'})
 
-    # for k,v in d.items():
-    #     if v[0] < 0.1:
-    #         visualize_maps(v[2][0], criterion.bin_mask[0,v[1]].float(), v[1], "val")
+    # T = 10
+    # eq_mses =[] 
+    # rand_mses = []
+    # for i in tqdm(range(T)):
+    #     mse = visualization.test_equivariance(pda_dict["6bdf"], model)
+    #     random_mse = visualization.test_equivariance(pda_dict["6bdf"], model, randomized=True)
 
-    T = 10
-    eq_mses =[] 
-    rand_mses = []
-    for i in tqdm(range(T)):
-        mse = visualization.test_equivariance(pda_dict["6bdf"], model)
-        random_mse = visualization.test_equivariance(pda_dict["6bdf"], model, randomized=True)
-
-        eq_mses.append(mse)
-        rand_mses.append(random_mse)
+    #     eq_mses.append(mse)
+    #     rand_mses.append(random_mse)
     
-    print("eq", np.mean(eq_mses), min(eq_mses), max(eq_mses))
-    print("random", np.mean(rand_mses), min(rand_mses), max(rand_mses))
+    # print("eq", np.mean(eq_mses), min(eq_mses), max(eq_mses))
+    # print("random", np.mean(rand_mses), min(rand_mses), max(rand_mses))
     
 
     

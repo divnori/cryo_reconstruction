@@ -191,15 +191,15 @@ def plot_so3_distribution(probs: torch.Tensor,
                  verticalalignment='center', transform=ax.transAxes)
 
     if pred_or_true == "pred":
-        plt.savefig(f"experiments/experiment_9000images/predicted_probability_vis/pred-dist-{idx}-epoch-{e}.png")
+        plt.savefig(f"experiments/experiment_50images_conv/predicted_probability_vis/pred-dist-{idx}-epoch-{e}.png")
         plt.close()
-        with open(f"experiments/experiment_9000images/predicted_probability_pkls/pred-dist-{idx}-epoch-{e}.pickle", "wb") as f:
+        with open(f"experiments/experiment_50images_conv/predicted_probability_pkls/pred-dist-{idx}-epoch-{e}.pickle", "wb") as f:
             pickle.dump(probs, f)
     elif pred_or_true == "true" and (e == 0 or e == "val"):
-        plt.savefig(f"experiments/experiment_9000images/gt_mask_vis/true-{idx}-epoch-{e}.png")
+        plt.savefig(f"experiments/experiment_50images_conv/gt_mask_vis/true-{idx}-epoch-{e}.png")
         plt.close()
     else:
-        plt.savefig(f"experiments/experiment_9000images/predicted_probability_vis/pred-mask-{idx}-epoch-{e}.png")
+        plt.savefig(f"experiments/experiment_50images_conv/predicted_probability_vis/pred-mask-{idx}-epoch-{e}.png")
         plt.close()
 
 
